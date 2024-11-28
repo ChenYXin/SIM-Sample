@@ -11,5 +11,12 @@
 
     <artifactId>im-pojo</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.itzixi</groupId>
+            <artifactId>im-commom</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 
 </project>
