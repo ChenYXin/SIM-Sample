@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.itzixi</groupId>
+    <groupId>org.itzixi</groupId>
     <artifactId>sim-sample</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <!--
@@ -13,29 +13,19 @@
     war:老项目，使用外部tomcat容器进行发布和运行
     -->
     <packaging>pom</packaging>
-    <name>Sim-sample</name>
-    <description>Sim-sample</description>
-    <url/>
-    <licenses>
-        <license/>
-    </licenses>
-    <developers>
-        <developer/>
-    </developers>
     <modules>
         <module>im-commom</module>
         <module>im-pojo</module>
         <module>api</module>
+        <module>im-gateway-1000</module>
     </modules>
-    <scm>
-        <connection/>
-        <developerConnection/>
-        <tag/>
-        <url/>
-    </scm>
+
     <properties>
-        <java.version>17</java.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
@@ -89,14 +79,5 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
 
 </project>
