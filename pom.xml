@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.itzixi</groupId>
+    <artifactId>sim-sample</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <!--
+    打包方式：
+    POM:针对root（一级工程）进行使用，并且当前的root（顶级pom）可以管理所有jar包
+    jar:默认，常规spring-boot打包就用jar
+    war:老项目，使用外部tomcat容器进行发布和运行
+    -->
+    <packaging>pom</packaging>
+    <name>Sim-sample</name>
+    <description>Sim-sample</description>
+    <url/>
+    <licenses>
+        <license/>
+    </licenses>
+    <developers>
+        <developer/>
+    </developers>
+    <modules>
+        <module>im-commom</module>
+        <module>im-pojo</module>
+        <module>api</module>
+    </modules>
+    <scm>
+        <connection/>
+        <developerConnection/>
+        <tag/>
+        <url/>
+    </scm>
+    <properties>
+        <java.version>17</java.version>
+    </properties>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.0.13</version>
+        <relativePath/>
+    </parent>
+    <!--
+    使用dependencyManagement目的是为了保证当前父工程干净
+    也就是说父工程只会负责对依赖（坐标）的管理，以及依赖的版本管理，不会引入额外的jar依赖
+    如此一来，父工程的职责就很单一，而且也符合面向对象的理念，是一种父子依赖的继承关系，
+    依赖的导入只有在各自的二级或者三级（子工程）中才会导入
+    -->
+    <dependencyManagement>
+        <dependencies>
+            <!--引入微服务SpringCloud-->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>2022.0.4</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!--引入微服务组件SpringCloud alibaba-->
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+                <version>2022.0.0.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
