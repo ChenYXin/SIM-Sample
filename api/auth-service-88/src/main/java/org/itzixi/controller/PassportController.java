@@ -2,6 +2,7 @@ package org.itzixi.controller;
 
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.itzixi.base.BaseInfoProperties;
@@ -12,6 +13,7 @@ import org.itzixi.pojo.bo.RegisterLoginBO;
 import org.itzixi.service.IUsersService;
 import org.itzixi.tasks.SMSTask;
 import org.itzixi.utils.IPUtil;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -46,7 +48,7 @@ public class PassportController extends BaseInfoProperties {
     }
 
     @PostMapping("/register")
-    public GraceJSONResult register(@RequestBody RegisterLoginBO registerLoginBO,
+    public GraceJSONResult register(@RequestBody @Valid RegisterLoginBO registerLoginBO,
                                     HttpServletRequest request) throws Exception {
         String mobile = registerLoginBO.getMobile();
         String code = registerLoginBO.getSmsCode();
@@ -72,7 +74,7 @@ public class PassportController extends BaseInfoProperties {
     }
 
     @PostMapping("/login")
-    public GraceJSONResult login(@RequestBody RegisterLoginBO registerLoginBO,
+    public GraceJSONResult login(@RequestBody @Valid RegisterLoginBO registerLoginBO,
                                     HttpServletRequest request) throws Exception {
         String mobile = registerLoginBO.getMobile();
         String code = registerLoginBO.getSmsCode();
