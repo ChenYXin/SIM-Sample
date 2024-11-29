@@ -1,3 +1,5 @@
+server:
+  port: 55
 spring:
   cloud:
     nacos:

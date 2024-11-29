@@ -1,5 +1,4 @@
 server:
-  port: 1000
   tomcat:
     uri-encoding: utf-8
     max-swallow-size: -1 #不限制请求体大小，默认2M
@@ -15,3 +14,7 @@ logging:
   level:
     root: info
 
+#blackIP:
+#  continueCounts: 5 #ip联系请求的次数
+#  timeInterval: 15 #ip判断的时间间隔，单位：秒
+#  limitTimes: 25 #黑名单ip限制的时间，单位：秒

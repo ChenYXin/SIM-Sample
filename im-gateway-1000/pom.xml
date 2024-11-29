@@ -38,14 +38,19 @@
         <!-- macos M1/M2/M3芯片 可能存在的不兼容 -->
         <!-- https://stackoverflow.com/questions/65954571/spring-boot-2-4-2-redisson-client-dns-resolution-problem-at-start -->
 
+<!--        <dependency>-->
+<!--            <groupId>io.netty</groupId>-->
+<!--            <artifactId>netty-resolver-dns-native-macos</artifactId>-->
+<!--            <scope>runtime</scope>-->
+<!--            <classifier>osx-x86_64</classifier>-->
+<!--            <version>4.1.59.Final</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-resolver-dns-native-macos</artifactId>
-            <scope>runtime</scope>
-            <classifier>osx-x86_64</classifier>
-            <version>4.1.59.Final</version>
+            <version>4.1.73.Final</version>
+            <classifier>osx-aarch_64</classifier>
         </dependency>
-
     </dependencies>
 
 </project>

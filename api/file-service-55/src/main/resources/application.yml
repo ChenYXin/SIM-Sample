@@ -1,5 +1,4 @@
 server:
-  port: 55
   tomcat:
     uri-encoding: utf-8
     max-swallow-size: -1 #不限制请求体大小，默认2M

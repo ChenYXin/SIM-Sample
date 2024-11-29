@@ -1,3 +1,6 @@
+server:
+  port: 1000
+
 spring:
   data:
     redis:
@@ -8,9 +11,7 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: 127.0.0.1:8848 #本地开发环境
-        username: nacos
-        password: nacos
+        server-addr: 127.0.0.1:8848
     gateway:
       discovery:
         locator:
@@ -28,14 +29,11 @@ spring:
           uri: lb://main-service
           predicates:
             - Path=/m/**,/userinfo/**,/friendRequest/**,/friendship/**,/friendCircle/**,/comment/**,/chat/**
-      globalcors:
+      globalcors: #解决跨域问题
         cors-configurations:
           '[/**]':
             allowedOriginPatterns: "*"
             allowedHeaders: "*"
             allowedMethods: "*"
             allowCredentials: true
-
-
-
 
