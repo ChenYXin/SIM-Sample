@@ -12,8 +12,9 @@
     <artifactId>auth-service-88</artifactId>
     <dependencies>
         <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-commons</artifactId>
+            <groupId>org.itzixi</groupId>
+            <artifactId>base-service</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
