@@ -144,4 +144,12 @@ public class PassportController extends BaseInfoProperties {
 
         return GraceJSONResult.ok(usersVO);
     }
+
+    //退出登录，清理用户分布式会话
+    @PostMapping("/logout")
+    public GraceJSONResult logout(@RequestParam String userId){
+        //清理用户的分布式会话
+        redis.del(REDIS_USER_TOKEN + ":" + userId);
+        return GraceJSONResult.ok();
+    }
 }
