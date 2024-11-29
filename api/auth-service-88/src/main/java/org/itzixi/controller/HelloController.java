@@ -1,6 +1,7 @@
 package org.itzixi.controller;
 
 import jakarta.annotation.Resource;
+import org.itzixi.SMSTask;
 import org.itzixi.utils.SMSUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,7 +11,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/a")
 public class HelloController {
     @Resource
-    SMSUtils smsUtils;
+    private SMSUtils smsUtils;
+
+    @Resource
+    private SMSTask smsTask;
 
     @GetMapping("/hello")
     public String hello() {
@@ -21,5 +25,11 @@ public class HelloController {
     public String sms() throws Exception {
         smsUtils.sendSMS("13691942911","9989");
         return "send sms OK";
+    }
+
+    @GetMapping("/smsTask")
+    public String smsTask() throws Exception {
+        smsTask.sendSmsInTask("13691942911","8899");
+        return "send sms In Task OK";
     }
 }
