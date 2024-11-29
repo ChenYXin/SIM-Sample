@@ -12,5 +12,6 @@ import lombok.ToString;
 public class RegisterLoginBO {
     private String mobile;
     private String smsCode;
+    private String nickName;
 
 }

@@ -50,6 +50,7 @@ public class PassportController extends BaseInfoProperties {
                                     HttpServletRequest request) throws Exception {
         String mobile = registerLoginBO.getMobile();
         String code = registerLoginBO.getSmsCode();
+        String nickName = registerLoginBO.getNickName();
         //1.从redis中获得验证码进行校验判断是否匹配
         String redisCode = redis.get(MOBILE_SMSCODE + ":" + mobile);
         if (StringUtils.isBlank(redisCode) || !redisCode.equalsIgnoreCase(code)) {
@@ -61,9 +62,32 @@ public class PassportController extends BaseInfoProperties {
             return GraceJSONResult.errorCustom(ResponseStatusEnum.USER_ALREADY_EXIST_ERROR);
         }
         //2.1如果查询数据库中用户为空，则表示用户没有注册过，则需要进行用户信息数据的入库
-        user = usersService.createUsers(mobile);
+        user = usersService.createUsers(mobile, nickName);
 
-        //3.用户注册成功后，删除redis中的短信验证码使其实效
+        //3.用户注册成功后，删除redis中的短信验证码使其失效
+        redis.del(MOBILE_SMSCODE + ":" + mobile);
+        //4.返回用户数据给前端
+
+        return GraceJSONResult.ok(user);
+    }
+
+    @PostMapping("/login")
+    public GraceJSONResult login(@RequestBody RegisterLoginBO registerLoginBO,
+                                    HttpServletRequest request) throws Exception {
+        String mobile = registerLoginBO.getMobile();
+        String code = registerLoginBO.getSmsCode();
+        //1.从redis中获得验证码进行校验判断是否匹配
+        String redisCode = redis.get(MOBILE_SMSCODE + ":" + mobile);
+        if (StringUtils.isBlank(redisCode) || !redisCode.equalsIgnoreCase(code)) {
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.SMS_CODE_ERROR);
+        }
+        //2.根据mobile查询数据库，如果用户不存在，则提示还没注册
+        Users user = usersService.queryMobileIfExists(mobile);
+        if (user == null) {
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.USER_NOT_EXIST_ERROR);
+        }
+
+        //3.用户登录成功后，删除redis中的短信验证码使其失效
         redis.del(MOBILE_SMSCODE + ":" + mobile);
         //4.返回用户数据给前端
 

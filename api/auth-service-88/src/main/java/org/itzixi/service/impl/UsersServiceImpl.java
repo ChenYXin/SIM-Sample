@@ -38,7 +38,7 @@ public class UsersServiceImpl extends BaseInfoProperties implements IUsersServic
 
     @Transactional
     @Override
-    public Users createUsers(String mobile) {
+    public Users createUsers(String mobile,String nickName) {
         Users users = new Users();
         users.setMobile(mobile);
         String uuid = UUID.randomUUID().toString();
@@ -48,7 +48,7 @@ public class UsersServiceImpl extends BaseInfoProperties implements IUsersServic
         users.setWechatNumImg("123");
 
         users.setNickname("123");
-        users.setRealName("123");
+        users.setRealName(nickName);
 
         users.setSex(Sex.secret.type);
         users.setFace("");

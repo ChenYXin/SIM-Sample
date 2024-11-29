@@ -15,5 +15,5 @@ public interface IUsersService{
 
     public Users queryMobileIfExists(String mobile);
 
-    public Users createUsers(String mobile);
+    public Users createUsers(String mobile,String nickName);
 }
