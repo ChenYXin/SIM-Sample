@@ -10,11 +10,14 @@ import org.itzixi.grace.result.GraceJSONResult;
 import org.itzixi.grace.result.ResponseStatusEnum;
 import org.itzixi.pojo.Users;
 import org.itzixi.pojo.bo.RegisterLoginBO;
+import org.itzixi.pojo.vo.UsersVO;
 import org.itzixi.service.IUsersService;
 import org.itzixi.tasks.SMSTask;
 import org.itzixi.utils.IPUtil;
-import org.springframework.validation.annotation.Validated;
+import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/passport")
@@ -68,14 +71,20 @@ public class PassportController extends BaseInfoProperties {
 
         //3.用户注册成功后，删除redis中的短信验证码使其失效
         redis.del(MOBILE_SMSCODE + ":" + mobile);
-        //4.返回用户数据给前端
+        //4.设置用户分布式会话，保存用户的token令牌，存储到redis中
+        String uToken = TOKEN_USER_PREFIX + SYMBOL_DOT + UUID.randomUUID();
+        redis.set(REDIS_USER_TOKEN + ":" + user.getId(), uToken);//设置分布式会话
+        //5.返回用户数据给前端
+        UsersVO usersVO = new UsersVO();
+        BeanUtils.copyProperties(user, usersVO);
+        usersVO.setUserToken(uToken);
 
         return GraceJSONResult.ok(user);
     }
 
     @PostMapping("/login")
     public GraceJSONResult login(@RequestBody @Valid RegisterLoginBO registerLoginBO,
-                                    HttpServletRequest request) throws Exception {
+                                 HttpServletRequest request) throws Exception {
         String mobile = registerLoginBO.getMobile();
         String code = registerLoginBO.getSmsCode();
         //1.从redis中获得验证码进行校验判断是否匹配
@@ -91,8 +100,16 @@ public class PassportController extends BaseInfoProperties {
 
         //3.用户登录成功后，删除redis中的短信验证码使其失效
         redis.del(MOBILE_SMSCODE + ":" + mobile);
-        //4.返回用户数据给前端
 
-        return GraceJSONResult.ok(user);
+        //4.设置用户分布式会话，保存用户的token令牌，存储到redis中
+        String uToken = TOKEN_USER_PREFIX + SYMBOL_DOT + UUID.randomUUID();
+        redis.set(REDIS_USER_TOKEN + ":" + user.getId(), uToken);//设置分布式会话
+
+        //5.返回用户数据给前端
+        UsersVO usersVO = new UsersVO();
+        BeanUtils.copyProperties(user, usersVO);
+        usersVO.setUserToken(uToken);
+
+        return GraceJSONResult.ok(usersVO);
     }
 }
