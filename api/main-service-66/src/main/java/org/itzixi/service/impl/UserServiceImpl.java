@@ -41,4 +41,9 @@ public class UserServiceImpl extends BaseInfoProperties implements IUsersService
         BeanUtils.copyProperties(userBO, pendingUser);
         usersMapper.updateById(pendingUser);
     }
+
+    @Override
+    public Users getById(String userId) {
+         return usersMapper.selectById(userId);
+    }
 }

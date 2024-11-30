@@ -1,5 +1,6 @@
 package org.itzixi.service;
 
+import org.itzixi.pojo.Users;
 import org.itzixi.pojo.bo.ModifyUserBO;
 
 /**
@@ -13,4 +14,7 @@ import org.itzixi.pojo.bo.ModifyUserBO;
 public interface IUsersService {
 
     public void modifyUserInfo(ModifyUserBO userBO);
+
+    public Users getById(String userId);
+
 }
