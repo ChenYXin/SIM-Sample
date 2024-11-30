@@ -26,7 +26,10 @@ public class UserServiceImpl extends BaseInfoProperties implements IUsersService
     @Override
     public void modifyUserInfo(ModifyUserBO userBO) {
         Users pendingUser = new Users();
+
         String userId = userBO.getUserId();
+        String wechatNum = userBO.getWechatNum();
+
         if (StringUtils.isBlank(userId)) {
             GraceException.display(ResponseStatusEnum.USER_INFO_UPDATED_ERROR);
         }
@@ -35,15 +38,29 @@ public class UserServiceImpl extends BaseInfoProperties implements IUsersService
         if (users == null) {
             GraceException.display(ResponseStatusEnum.USER_NOT_EXIST_ERROR);
         }
+        if (StringUtils.isNotBlank(wechatNum)) {
+            String isExist=redis.get(REDIS_USER_ALREADY_UPDATE_WECHAT_NUM + ":" + userId);
+            if (StringUtils.isNotBlank(isExist)) {
+                GraceException.display(ResponseStatusEnum.WECHAT_NUM_ALREADY_MODIFIED_ERROR);
+            }
+        }
+
         pendingUser.setId(userId);
         pendingUser.setUpdatedTime(LocalDateTime.now());
 
         BeanUtils.copyProperties(userBO, pendingUser);
         usersMapper.updateById(pendingUser);
+
+        //如果用户修改微信号，则只能修改一次，放入redis中进行判断
+        if (StringUtils.isNotBlank(wechatNum)) {
+            redis.setByDays(REDIS_USER_ALREADY_UPDATE_WECHAT_NUM + ":" + userId,
+                    userId,
+                    365);
+        }
     }
 
     @Override
     public Users getById(String userId) {
-         return usersMapper.selectById(userId);
+        return usersMapper.selectById(userId);
     }
 }
