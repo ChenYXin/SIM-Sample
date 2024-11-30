@@ -14,5 +14,6 @@ import java.util.List;
 public class ExcludeUrlPathProperties {
 
     private List<String> urls;
+    private String fileStart;
 
 }
