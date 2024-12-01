@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.itzixi.mapper.FriendshipMapperCustom">
+    <select id="queryMyFriends"
+            parameterType="map"
+            resultType="org.itzixi.pojo.vo.ContactsVO">
+        select fs.friend_id     as friendshipId,
+               fs.my_id         as mySelfId,
+               fs.friend_id     as myFriendId,
+               u.face           as myFriendFace,
+               u.nickname       as myFriendNickname,
+               fs.friend_remark as myFriendRemark,
+               fs.chat_bg       as chatBg,
+               fs.is_msg_ignore as isMsgIgnore,
+               fs.is_black      as isBlack
+        from friendship fs
+                 left join users u
+                           on fs.friend_id = u.id
+        where fs.my_id = #{paramMap.myId}
+    </select>
+
+</mapper>

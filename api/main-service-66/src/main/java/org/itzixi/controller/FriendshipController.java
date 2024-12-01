@@ -7,11 +7,14 @@ import org.itzixi.base.BaseInfoProperties;
 import org.itzixi.grace.result.GraceJSONResult;
 import org.itzixi.grace.result.ResponseStatusEnum;
 import org.itzixi.pojo.Friendship;
+import org.itzixi.pojo.vo.ContactsVO;
 import org.itzixi.service.IFriendshipService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/friendship")
@@ -30,5 +33,16 @@ public class FriendshipController extends BaseInfoProperties {
 
         Friendship friendship = friendshipService.getFriendship(myId, friendId);
         return GraceJSONResult.ok(friendship);
+    }
+
+    /**
+     * 通过好友关系表查询我的好友，即通讯录列表
+     */
+    @PostMapping("/queryMyFriends")
+    public GraceJSONResult queryMyFriends(HttpServletRequest request) {
+        String myId = request.getHeader(HEADER_USER_ID);
+
+        List<ContactsVO> list = friendshipService.getFriendship(myId);
+        return GraceJSONResult.ok(list);
     }
 }
