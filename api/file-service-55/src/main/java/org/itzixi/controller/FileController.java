@@ -5,8 +5,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.itzixi.MinIOConfig;
 import org.itzixi.MinIOUtils;
+import org.itzixi.api.feign.UserInfoMicroServiceFeign;
 import org.itzixi.grace.result.GraceJSONResult;
 import org.itzixi.grace.result.ResponseStatusEnum;
+import org.itzixi.pojo.vo.UsersVO;
+import org.itzixi.utils.JsonUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,6 +22,9 @@ public class FileController {
 
     @Resource
     private MinIOConfig minIOConfig;
+
+    @Resource
+    private UserInfoMicroServiceFeign userInfoMicroServiceFeign;
 
     @PostMapping("/uploadFace1")
     public GraceJSONResult uploadFace1(@RequestParam("file") MultipartFile file,
@@ -69,6 +75,16 @@ public class FileController {
                 + minIOConfig.getBucketName()
                 + "/"
                 + fileName;
-        return GraceJSONResult.ok(faceUrl);
+        /**
+         * 微服务远程调用更新用户头像到数据库
+         * 如果前端没有保存按钮则可以这么做，如果有保存提交按钮，则在前端可以触发
+         * 此处则不需要进行微服务调用，让前端触发保存提交到后台进行保存
+         */
+        GraceJSONResult jsonResult=userInfoMicroServiceFeign.updateFace(userId, faceUrl);
+        Object data=jsonResult.getData();
+        String json=JsonUtils.objectToJson(data);
+        UsersVO usersVO=JsonUtils.jsonToPojo(json, UsersVO.class);
+
+        return GraceJSONResult.ok(usersVO);
     }
 }

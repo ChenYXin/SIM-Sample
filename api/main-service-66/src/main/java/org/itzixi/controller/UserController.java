@@ -41,5 +41,18 @@ public class UserController extends BaseInfoProperties {
         return usersVO;
     }
 
+    @PostMapping("/updateFace")
+    public GraceJSONResult updateFace(@RequestParam("userId") String userId,
+                                      @RequestParam("face") String face) {
+        ModifyUserBO userBO = new ModifyUserBO();
+        userBO.setUserId(userId);
+        userBO.setFace(face);
 
+        //修改用户信息
+        usersService.modifyUserInfo(userBO);
+        //返回最新用户信息
+        UsersVO usersVO = getUserInfo(userBO.getUserId(), true);
+
+        return GraceJSONResult.ok(usersVO);
+    }
 }
