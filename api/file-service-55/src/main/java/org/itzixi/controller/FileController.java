@@ -93,7 +93,7 @@ public class FileController {
 
     @PostMapping("/generatorQrCode")
     public String generatorQrCode(String wechatNumber,
-                                           String userId) throws Exception {
+                                  String userId) throws Exception {
         // 构建map对象
         Map<String, String> map = new HashMap<>();
         map.put("wechatNumber", wechatNumber);
@@ -106,10 +106,62 @@ public class FileController {
         if (StringUtils.isNotBlank(qrCodePath)) {
             String uuid = UUID.randomUUID().toString();
             String objectName = "wechatNumber" + File.separator + userId + File.separator + uuid + ".png";
-            String imageQrCodeUrl=MinIOUtils.uploadFile(minIOConfig.getBucketName(), objectName, qrCodePath, true);
+            String imageQrCodeUrl = MinIOUtils.uploadFile(minIOConfig.getBucketName(), objectName, qrCodePath, true);
             return imageQrCodeUrl;
         }
 
         return "";
+    }
+
+    @PostMapping("/uploadFriendCircleBg")
+    public GraceJSONResult uploadFriendCircleBg(@RequestParam("file") MultipartFile file,
+                                                String userId) throws Exception {
+        if (StringUtils.isBlank(userId)) {
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.FILE_UPLOAD_FAILD);
+        }
+
+        //获得文件原始名称
+        String fileName = file.getOriginalFilename();
+        if (StringUtils.isBlank(fileName)) {
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.FILE_UPLOAD_FAILD);
+        }
+        // File.separator 表示当前操作系统的文件路径分隔符
+        // Windows 系统中，文件路径分隔符是\（反斜杠），而在 Unix/Linux 和 macOS 系统中，文件路径分隔符是/（正斜杠）
+        fileName = "friendCircleBg"
+                + File.separator + userId
+                + File.separator + dealWithoutFileName(fileName);
+        //上传
+        String imageUrl=MinIOUtils.uploadFile(minIOConfig.getBucketName(),
+                fileName,
+                file.getInputStream(),true);
+
+        /**
+         * 微服务远程调用更新用户头像到数据库
+         * 如果前端没有保存按钮则可以这么做，如果有保存提交按钮，则在前端可以触发
+         * 此处则不需要进行微服务调用，让前端触发保存提交到后台进行保存
+         */
+        GraceJSONResult jsonResult = userInfoMicroServiceFeign.updateFriendCircleBg(userId, imageUrl);
+        Object data = jsonResult.getData();
+        String json = JsonUtils.objectToJson(data);
+        UsersVO usersVO = JsonUtils.jsonToPojo(json, UsersVO.class);
+
+        return GraceJSONResult.ok(usersVO);
+    }
+
+    private String dealWithFileName(String fileName) {
+        //从最后一个.开始截取
+        String suffixName = fileName.substring(fileName.lastIndexOf("."));
+        //文件的新名称
+        String fName = fileName.substring(0, fileName.lastIndexOf("."));
+        String uuid = UUID.randomUUID().toString();
+        return fName + "-" + uuid + suffixName;
+    }
+
+    private String dealWithoutFileName(String fileName) {
+        //从最后一个.开始截取
+        String suffixName = fileName.substring(fileName.lastIndexOf("."));
+        //文件的新名称
+        String uuid = UUID.randomUUID().toString();
+        return uuid + suffixName;
     }
 }
