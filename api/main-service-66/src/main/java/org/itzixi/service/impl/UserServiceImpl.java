@@ -69,6 +69,7 @@ public class UserServiceImpl extends BaseInfoProperties implements IUsersService
         return usersMapper.selectById(userId);
     }
 
+
     @Resource
     private FileMicroServiceFeign fileMicroServiceFeign;
 
@@ -79,5 +80,16 @@ public class UserServiceImpl extends BaseInfoProperties implements IUsersService
         } catch (Exception e) {
             return null;
         }
+    }
+
+    @Override
+    public Users getByWechatNumberOrMobile(String queryString) {
+        QueryWrapper queryWrapper = new QueryWrapper<Users>()
+                .eq("wechat_num", queryString)
+                .or()
+                .eq("mobile", queryString);
+        Users friend = usersMapper.selectOne(queryWrapper);
+
+        return friend;
     }
 }

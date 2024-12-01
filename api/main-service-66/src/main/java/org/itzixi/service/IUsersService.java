@@ -17,4 +17,5 @@ public interface IUsersService {
 
     public Users getById(String userId);
 
+    public Users getByWechatNumberOrMobile(String queryString);
 }

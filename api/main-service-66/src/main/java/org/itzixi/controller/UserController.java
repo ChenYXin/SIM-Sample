@@ -1,8 +1,11 @@
 package org.itzixi.controller;
 
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import org.apache.commons.lang3.StringUtils;
 import org.itzixi.base.BaseInfoProperties;
 import org.itzixi.grace.result.GraceJSONResult;
+import org.itzixi.grace.result.ResponseStatusEnum;
 import org.itzixi.pojo.Users;
 import org.itzixi.pojo.bo.ModifyUserBO;
 import org.itzixi.pojo.vo.UsersVO;
@@ -73,7 +76,7 @@ public class UserController extends BaseInfoProperties {
 
     @PostMapping("/updateChatBg")
     public GraceJSONResult updateChatBg(@RequestParam("userId") String userId,
-                                                @RequestParam("chatBg") String chatBg) {
+                                        @RequestParam("chatBg") String chatBg) {
         ModifyUserBO userBO = new ModifyUserBO();
         userBO.setUserId(userId);
         userBO.setChatBg(chatBg);
@@ -84,5 +87,22 @@ public class UserController extends BaseInfoProperties {
         UsersVO usersVO = getUserInfo(userBO.getUserId(), true);
 
         return GraceJSONResult.ok(usersVO);
+    }
+
+    @PostMapping("/queryFriend")
+    public GraceJSONResult queryFriend(@RequestParam("queryString") String queryString, HttpServletRequest request) {
+        if (StringUtils.isBlank(queryString)) {
+            return GraceJSONResult.error();
+        }
+        Users friend = usersService.getByWechatNumberOrMobile(queryString);
+        if (friend == null) {
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.FRIEND_NOT_EXIST_ERROR);
+        }
+        //判断，不能添加自己为好友
+        String myUserId = request.getHeader(HEADER_USER_ID);
+        if (myUserId.equals(friend.getId())) {
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.CAN_NOT_ADD_SELF_FRIEND_ERROR);
+        }
+        return GraceJSONResult.ok(friend);
     }
 }
