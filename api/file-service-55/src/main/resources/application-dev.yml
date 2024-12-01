@@ -7,3 +7,9 @@ spring:
         server-addr: 127.0.0.1:8848 #本地开发环境
         username: nacos
         password: nacos
+minio:
+  endpoint: http://127.0.0.1:9000 #MinIO服务地址
+  fileHost: http://127.0.0.1:9000 #文件地址host ,最终需要改成域名地址 , 对外暴露
+  bucketName: wechat              #存储桶bucket名称
+  accessKey: imooc                #账号
+  secretKey: imooc123456          #密码
