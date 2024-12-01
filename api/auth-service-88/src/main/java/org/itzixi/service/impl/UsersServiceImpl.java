@@ -3,11 +3,14 @@ package org.itzixi.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.tencentcloudapi.ciam.v20220331.models.User;
 import jakarta.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
+import org.itzixi.api.feign.FileMicroServiceFeign;
 import org.itzixi.base.BaseInfoProperties;
 import org.itzixi.enums.Sex;
 import org.itzixi.mapper.UsersMapper;
 import org.itzixi.pojo.Users;
 import org.itzixi.service.IUsersService;
+import org.itzixi.utils.DesensitizationUtil;
 import org.itzixi.utils.LocalDateUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,16 +41,26 @@ public class UsersServiceImpl extends BaseInfoProperties implements IUsersServic
 
     @Transactional
     @Override
-    public Users createUsers(String mobile,String nickName) {
+    public Users createUsers(String mobile, String nickName) {
         Users users = new Users();
         users.setMobile(mobile);
         String uuid = UUID.randomUUID().toString();
         String uuidStr[] = uuid.split("-");
         String wechatNum = "wx" + uuidStr[0] + uuidStr[1];
         users.setWechatNum(wechatNum);
-        users.setWechatNumImg("123");
 
-        users.setNickname("123");
+        //二维码
+        String wechatNumberUrl = getQrCodeUrl(wechatNum, TEMP_STRING);
+        users.setWechatNumImg(wechatNumberUrl);
+
+        //用户139******1234
+        //DesensitizationUtil
+        if (StringUtils.isBlank(nickName)) {
+            users.setNickname("用户" + DesensitizationUtil.commonDisplay(mobile));
+        }else{
+            users.setNickname(nickName);
+        }
+
         users.setRealName(nickName);
 
         users.setSex(Sex.secret.type);
@@ -68,6 +81,18 @@ public class UsersServiceImpl extends BaseInfoProperties implements IUsersServic
 
         usersMapper.insert(users);
         return users;
+    }
+
+    @Resource
+    private FileMicroServiceFeign fileMicroServiceFeign;
+
+    private String getQrCodeUrl(String wechatNumber,
+                                String userId) {
+        try {
+            return fileMicroServiceFeign.generatorQrCode(wechatNumber, userId);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
 }

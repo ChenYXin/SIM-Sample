@@ -57,8 +57,7 @@ public class FileController {
 
     @PostMapping("/uploadFace")
     public GraceJSONResult uploadFace(@RequestParam("file") MultipartFile file,
-                                      String userId,
-                                      HttpServletRequest request) throws Exception {
+                                      String userId) throws Exception {
         if (StringUtils.isBlank(userId)) {
             return GraceJSONResult.errorCustom(ResponseStatusEnum.FILE_UPLOAD_FAILD);
         }

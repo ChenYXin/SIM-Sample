@@ -3,6 +3,7 @@ package org.itzixi.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
+import org.itzixi.api.feign.FileMicroServiceFeign;
 import org.itzixi.base.BaseInfoProperties;
 import org.itzixi.exceptions.GraceException;
 import org.itzixi.grace.result.ResponseStatusEnum;
@@ -39,9 +40,13 @@ public class UserServiceImpl extends BaseInfoProperties implements IUsersService
             GraceException.display(ResponseStatusEnum.USER_NOT_EXIST_ERROR);
         }
         if (StringUtils.isNotBlank(wechatNum)) {
-            String isExist=redis.get(REDIS_USER_ALREADY_UPDATE_WECHAT_NUM + ":" + userId);
+            String isExist = redis.get(REDIS_USER_ALREADY_UPDATE_WECHAT_NUM + ":" + userId);
             if (StringUtils.isNotBlank(isExist)) {
                 GraceException.display(ResponseStatusEnum.WECHAT_NUM_ALREADY_MODIFIED_ERROR);
+            } else {
+                //修改微信二维码
+                String wechatNumberUrl = getQrCodeUrl(wechatNum, userId);
+                pendingUser.setWechatNumImg(wechatNumberUrl);
             }
         }
 
@@ -62,5 +67,17 @@ public class UserServiceImpl extends BaseInfoProperties implements IUsersService
     @Override
     public Users getById(String userId) {
         return usersMapper.selectById(userId);
+    }
+
+    @Resource
+    private FileMicroServiceFeign fileMicroServiceFeign;
+
+    private String getQrCodeUrl(String wechatNumber,
+                                String userId) {
+        try {
+            return fileMicroServiceFeign.generatorQrCode(wechatNumber, userId);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }
