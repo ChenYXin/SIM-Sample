@@ -10,4 +10,6 @@ public interface IFriendshipService {
     public Friendship getFriendship(String myId,String friendId);
 
     public List<ContactsVO> getFriendship(String myId);
+
+    public void updateFriendRemark(String myId,String friendId,String remark);
 }

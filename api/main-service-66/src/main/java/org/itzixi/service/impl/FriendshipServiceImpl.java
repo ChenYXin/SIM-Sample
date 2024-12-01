@@ -11,6 +11,7 @@ import org.itzixi.pojo.vo.ContactsVO;
 import org.itzixi.service.IFriendshipService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,8 +35,23 @@ public class FriendshipServiceImpl extends BaseInfoProperties implements IFriend
 
     @Override
     public List<ContactsVO> getFriendship(String myId) {
-        Map<String,Object> map=new HashMap<>();
-        map.put("myId",myId);
+        Map<String, Object> map = new HashMap<>();
+        map.put("myId", myId);
         return friendshipMapperCustom.queryMyFriends(map);
+    }
+
+    @Override
+    public void updateFriendRemark(String myId, String friendId, String remark) {
+
+        QueryWrapper<Friendship> updateWrapper = new QueryWrapper<Friendship>()
+                .eq("my_id", myId)
+                .eq("friend_id", friendId);
+
+        Friendship friendship = new Friendship();
+        friendship.setFriendRemark(remark);
+        friendship.setUpdatedTime(LocalDateTime.now());
+
+        friendshipMapper.update(friendship, updateWrapper);
+
     }
 }

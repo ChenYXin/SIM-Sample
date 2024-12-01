@@ -3,6 +3,7 @@ package org.itzixi.controller;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.itzixi.base.BaseInfoProperties;
 import org.itzixi.grace.result.GraceJSONResult;
 import org.itzixi.grace.result.ResponseStatusEnum;
@@ -44,5 +45,17 @@ public class FriendshipController extends BaseInfoProperties {
 
         List<ContactsVO> list = friendshipService.getFriendship(myId);
         return GraceJSONResult.ok(list);
+    }
+
+    @PostMapping("/updateFriendRemark")
+    public GraceJSONResult updateFriendRemark(HttpServletRequest request,
+                                              String friendId,
+                                              String friendRemark) {
+        if(StringUtils.isBlank(friendId)||StringUtils.isBlank(friendRemark)) {
+           return GraceJSONResult.error();
+        }
+        String myId = request.getHeader(HEADER_USER_ID);
+        friendshipService.updateFriendRemark(myId, friendId, friendRemark);
+        return GraceJSONResult.ok();
     }
 }
