@@ -3,6 +3,7 @@ package org.itzixi.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import jakarta.annotation.Resource;
 import org.itzixi.base.BaseInfoProperties;
+import org.itzixi.enums.YesOrNo;
 import org.itzixi.mapper.FriendshipMapper;
 import org.itzixi.mapper.FriendshipMapperCustom;
 import org.itzixi.pojo.FriendRequest;
@@ -52,6 +53,18 @@ public class FriendshipServiceImpl extends BaseInfoProperties implements IFriend
         friendship.setUpdatedTime(LocalDateTime.now());
 
         friendshipMapper.update(friendship, updateWrapper);
+    }
 
+    @Override
+    public void updateBlackList(String myId, String friendId, YesOrNo yesOrNo) {
+        QueryWrapper<Friendship> updateWrapper = new QueryWrapper<Friendship>()
+                .eq("my_id", myId)
+                .eq("friend_id", friendId);
+
+        Friendship friendship = new Friendship();
+        friendship.setIsBlack(yesOrNo.type);
+        friendship.setUpdatedTime(LocalDateTime.now());
+
+        friendshipMapper.update(friendship, updateWrapper);
     }
 }

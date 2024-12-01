@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.itzixi.base.BaseInfoProperties;
+import org.itzixi.enums.YesOrNo;
 import org.itzixi.grace.result.GraceJSONResult;
 import org.itzixi.grace.result.ResponseStatusEnum;
 import org.itzixi.pojo.Friendship;
@@ -56,6 +57,28 @@ public class FriendshipController extends BaseInfoProperties {
         }
         String myId = request.getHeader(HEADER_USER_ID);
         friendshipService.updateFriendRemark(myId, friendId, friendRemark);
+        return GraceJSONResult.ok();
+    }
+
+    @PostMapping("/tobeBlack")
+    public GraceJSONResult tobeBlack(HttpServletRequest request,
+                                     String friendId) {
+        if(StringUtils.isBlank(friendId)) {
+            return GraceJSONResult.error();
+        }
+        String myId = request.getHeader(HEADER_USER_ID);
+        friendshipService.updateBlackList(myId,friendId, YesOrNo.YES);
+        return GraceJSONResult.ok();
+    }
+
+    @PostMapping("/moveOutBlack")
+    public GraceJSONResult moveOutBlack(HttpServletRequest request,
+                                     String friendId) {
+        if(StringUtils.isBlank(friendId)) {
+            return GraceJSONResult.error();
+        }
+        String myId = request.getHeader(HEADER_USER_ID);
+        friendshipService.updateBlackList(myId,friendId, YesOrNo.NO);
         return GraceJSONResult.ok();
     }
 }

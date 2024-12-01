@@ -1,5 +1,6 @@
 package org.itzixi.service;
 
+import org.itzixi.enums.YesOrNo;
 import org.itzixi.pojo.Friendship;
 import org.itzixi.pojo.vo.ContactsVO;
 
@@ -12,4 +13,8 @@ public interface IFriendshipService {
     public List<ContactsVO> getFriendship(String myId);
 
     public void updateFriendRemark(String myId,String friendId,String remark);
+
+    public void updateBlackList(String myId, String friendId, YesOrNo yesOrNo);
+
+
 }
