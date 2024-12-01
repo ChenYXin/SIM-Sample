@@ -152,4 +152,6 @@ public class PassportController extends BaseInfoProperties {
         redis.del(REDIS_USER_TOKEN + ":" + userId);
         return GraceJSONResult.ok();
     }
+
+
 }
