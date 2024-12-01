@@ -16,4 +16,6 @@ public interface IFriendshipService {
 
     public void updateBlackList(String myId, String friendId, YesOrNo yesOrNo);
 
+    public void delete(String myId, String friendId);
+
 }

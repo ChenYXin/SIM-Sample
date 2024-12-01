@@ -68,4 +68,19 @@ public class FriendshipServiceImpl extends BaseInfoProperties implements IFriend
 
         friendshipMapper.update(friendship, updateWrapper);
     }
+
+    @Override
+    public void delete(String myId, String friendId) {
+        QueryWrapper<Friendship> deleteWrapper1 = new QueryWrapper<Friendship>()
+                .eq("my_id", myId)
+                .eq("friend_id", friendId);
+
+        friendshipMapper.delete(deleteWrapper1);
+
+        QueryWrapper<Friendship> deleteWrapper2 = new QueryWrapper<Friendship>()
+                .eq("my_id", friendId)
+                .eq("friend_id", myId);
+
+        friendshipMapper.delete(deleteWrapper2);
+    }
 }
