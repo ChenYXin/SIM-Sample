@@ -44,7 +44,7 @@ public class FriendshipController extends BaseInfoProperties {
     public GraceJSONResult queryMyFriends(HttpServletRequest request) {
         String myId = request.getHeader(HEADER_USER_ID);
 
-        List<ContactsVO> list = friendshipService.getFriendship(myId);
+        List<ContactsVO> list = friendshipService.getFriendship(myId, false);
         return GraceJSONResult.ok(list);
     }
 
@@ -52,8 +52,8 @@ public class FriendshipController extends BaseInfoProperties {
     public GraceJSONResult updateFriendRemark(HttpServletRequest request,
                                               String friendId,
                                               String friendRemark) {
-        if(StringUtils.isBlank(friendId)||StringUtils.isBlank(friendRemark)) {
-           return GraceJSONResult.error();
+        if (StringUtils.isBlank(friendId) || StringUtils.isBlank(friendRemark)) {
+            return GraceJSONResult.error();
         }
         String myId = request.getHeader(HEADER_USER_ID);
         friendshipService.updateFriendRemark(myId, friendId, friendRemark);
@@ -63,22 +63,30 @@ public class FriendshipController extends BaseInfoProperties {
     @PostMapping("/tobeBlack")
     public GraceJSONResult tobeBlack(HttpServletRequest request,
                                      String friendId) {
-        if(StringUtils.isBlank(friendId)) {
+        if (StringUtils.isBlank(friendId)) {
             return GraceJSONResult.error();
         }
         String myId = request.getHeader(HEADER_USER_ID);
-        friendshipService.updateBlackList(myId,friendId, YesOrNo.YES);
+        friendshipService.updateBlackList(myId, friendId, YesOrNo.YES);
         return GraceJSONResult.ok();
     }
 
     @PostMapping("/moveOutBlack")
     public GraceJSONResult moveOutBlack(HttpServletRequest request,
-                                     String friendId) {
-        if(StringUtils.isBlank(friendId)) {
+                                        String friendId) {
+        if (StringUtils.isBlank(friendId)) {
             return GraceJSONResult.error();
         }
         String myId = request.getHeader(HEADER_USER_ID);
-        friendshipService.updateBlackList(myId,friendId, YesOrNo.NO);
+        friendshipService.updateBlackList(myId, friendId, YesOrNo.NO);
         return GraceJSONResult.ok();
+    }
+
+    @PostMapping("/queryMyBlackList")
+    public GraceJSONResult queryMyBlackList(HttpServletRequest request) {
+
+        String myId = request.getHeader(HEADER_USER_ID);
+        List<ContactsVO> list = friendshipService.getFriendship(myId, true);
+        return GraceJSONResult.ok(list);
     }
 }

@@ -4,19 +4,25 @@
     <select id="queryMyFriends"
             parameterType="map"
             resultType="org.itzixi.pojo.vo.ContactsVO">
-        select fs.friend_id     as friendshipId,
-               fs.my_id         as mySelfId,
-               fs.friend_id     as myFriendId,
-               u.face           as myFriendFace,
-               u.nickname       as myFriendNickname,
-               fs.friend_remark as myFriendRemark,
-               fs.chat_bg       as chatBg,
-               fs.is_msg_ignore as isMsgIgnore,
-               fs.is_black      as isBlack
+        select fs.friend_id as friendshipId,
+        fs.my_id as mySelfId,
+        fs.friend_id as myFriendId,
+        u.face as myFriendFace,
+        u.nickname as myFriendNickname,
+        fs.friend_remark as myFriendRemark,
+        fs.chat_bg as chatBg,
+        fs.is_msg_ignore as isMsgIgnore,
+        fs.is_black as isBlack
         from friendship fs
-                 left join users u
-                           on fs.friend_id = u.id
+        left join users u
+        on fs.friend_id = u.id
         where fs.my_id = #{paramMap.myId}
+        <if test="paramMap.needBlack">
+            and fs.is_black = 1
+        </if>
+        <if test="!paramMap.needBlack">
+            and fs.is_black = 0
+        </if>
     </select>
 
 </mapper>

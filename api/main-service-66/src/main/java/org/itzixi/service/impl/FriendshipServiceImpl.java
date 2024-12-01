@@ -35,9 +35,10 @@ public class FriendshipServiceImpl extends BaseInfoProperties implements IFriend
     }
 
     @Override
-    public List<ContactsVO> getFriendship(String myId) {
+    public List<ContactsVO> getFriendship(String myId,boolean needBlack) {
         Map<String, Object> map = new HashMap<>();
         map.put("myId", myId);
+        map.put("needBlack", needBlack);
         return friendshipMapperCustom.queryMyFriends(map);
     }
 
