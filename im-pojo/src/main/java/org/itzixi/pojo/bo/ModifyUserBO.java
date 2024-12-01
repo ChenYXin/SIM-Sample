@@ -9,6 +9,9 @@ import lombok.ToString;
 
 import java.time.LocalDate;
 
+/**
+ *  BO 相当于请求体 Query
+ */
 @Data
 @ToString
 @AllArgsConstructor
