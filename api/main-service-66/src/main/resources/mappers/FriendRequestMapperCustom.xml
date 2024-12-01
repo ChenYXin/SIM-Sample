@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.itzixi.mapper.FriendRequestMapperCustom">
+
+    <select id="queryNewFriendList"
+            parameterType="map"
+            resultType="org.itzixi.pojo.vo.NewFriendsVO">
+        select fr.id             as friendRequestId,
+               u.id              as myFriendId,
+               u.face            as myFriendFace,
+               u.nickname        as myFriendNickname,
+               fr.verify_message as verifyMessage,
+               fr.request_time   as requestTime,
+               fr.verify_status  as verifyStatus
+        from friend_request fr
+                 left join
+             users u
+             on
+                 fr.my_id = u.id
+        where
+            fr.friend_id = #{paramMap.mySelfId}
+        order by fr.request_time
+                desc
+
+    </select>
+
+</mapper>
