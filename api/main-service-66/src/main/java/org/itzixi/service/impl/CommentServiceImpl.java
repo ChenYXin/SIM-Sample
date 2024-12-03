@@ -3,6 +3,7 @@ package org.itzixi.service.impl;
 import jakarta.annotation.Resource;
 import org.itzixi.base.BaseInfoProperties;
 import org.itzixi.mapper.CommentMapper;
+import org.itzixi.mapper.CommentMapperCustom;
 import org.itzixi.pojo.Comment;
 import org.itzixi.pojo.Users;
 import org.itzixi.pojo.bo.CommentBO;
@@ -10,10 +11,14 @@ import org.itzixi.pojo.vo.CommentVO;
 import org.itzixi.service.ICommentService;
 import org.itzixi.service.IUsersService;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class CommentServiceImpl extends BaseInfoProperties implements ICommentService {
@@ -22,6 +27,8 @@ public class CommentServiceImpl extends BaseInfoProperties implements ICommentSe
     private CommentMapper commentMapper;
     @Resource
     private IUsersService usersService;
+    @Autowired
+    private CommentMapperCustom commentMapperCustom;
 
     @Transactional
     @Override
@@ -43,5 +50,13 @@ public class CommentServiceImpl extends BaseInfoProperties implements ICommentSe
         commentVO.setCommentId(pendingComment.getId());
 
         return commentVO;
+    }
+
+    @Override
+    public List<CommentVO> queryAll(String friendCircleId) {
+        Map<String,Object> map=new HashMap<>();
+        map.put("friendCircleId",friendCircleId);
+
+        return commentMapperCustom.queryFriendCircleComments(map);
     }
 }

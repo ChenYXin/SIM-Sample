@@ -29,5 +29,5 @@ public class FriendCircleVO implements Serializable {
     private List<FriendCircleLiked> likedFriends = new ArrayList<>();//点赞的朋友列表
     private Boolean doILike = false;                                 //用于判断当前用户是否点赞过朋友圈
 
-    private List<Comment> commentList = new ArrayList<>();
+    private List<CommentVO> commentList = new ArrayList<>();        //朋友圈的评论列表
 }

@@ -7,10 +7,9 @@ import org.itzixi.grace.result.GraceJSONResult;
 import org.itzixi.pojo.bo.CommentBO;
 import org.itzixi.pojo.vo.CommentVO;
 import org.itzixi.service.ICommentService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/comment")
@@ -24,5 +23,13 @@ public class CommentController extends BaseInfoProperties {
 
         CommentVO commentVO=commentService.createComment(commentBO);
         return GraceJSONResult.ok(commentVO);
+    }
+
+    @PostMapping("query")
+    public GraceJSONResult query(@RequestParam String friendCircleId,
+                                  HttpServletRequest request) {
+
+        List<CommentVO> commentVOList=commentService.queryAll(friendCircleId);
+        return GraceJSONResult.ok(commentVOList);
     }
 }

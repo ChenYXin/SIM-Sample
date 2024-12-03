@@ -7,7 +7,9 @@ import org.itzixi.grace.result.GraceJSONResult;
 import org.itzixi.grace.result.ResponseStatusEnum;
 import org.itzixi.pojo.FriendCircleLiked;
 import org.itzixi.pojo.bo.FriendCircleBO;
+import org.itzixi.pojo.vo.CommentVO;
 import org.itzixi.pojo.vo.FriendCircleVO;
+import org.itzixi.service.ICommentService;
 import org.itzixi.service.IFriendCircleService;
 import org.itzixi.utils.PagedGridResult;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +23,8 @@ public class FriendCircleController extends BaseInfoProperties {
 
     @Resource
     private IFriendCircleService friendCircleService;
+    @Resource
+    private ICommentService commentService;
 
     @PostMapping("/publish")
     public GraceJSONResult publish(@RequestBody FriendCircleBO friendCircleBO,
@@ -51,8 +55,11 @@ public class FriendCircleController extends BaseInfoProperties {
             List<FriendCircleLiked> likedList = friendCircleService.queryLikedFriends(friendCircleId);
             f.setLikedFriends(likedList);
 
-            boolean res=friendCircleService.doILike(friendCircleId,userId);
+            boolean res = friendCircleService.doILike(friendCircleId, userId);
             f.setDoILike(res);
+
+            List<CommentVO> commentList = commentService.queryAll(friendCircleId);
+            f.setCommentList(commentList);
         }
 
         return GraceJSONResult.ok(gridResult);
@@ -85,7 +92,7 @@ public class FriendCircleController extends BaseInfoProperties {
 
     @PostMapping("/likedFriends")
     public GraceJSONResult likedFriends(@RequestParam String friendCircleId,
-                                HttpServletRequest request) {
+                                        HttpServletRequest request) {
         String userId = request.getHeader(HEADER_USER_ID);
         if (userId == null) {
             return GraceJSONResult.errorCustom(ResponseStatusEnum.USER_NOT_EXIST_ERROR);
