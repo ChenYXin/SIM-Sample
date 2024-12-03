@@ -5,12 +5,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.itzixi.base.BaseInfoProperties;
 import org.itzixi.grace.result.GraceJSONResult;
 import org.itzixi.grace.result.ResponseStatusEnum;
+import org.itzixi.pojo.FriendCircleLiked;
 import org.itzixi.pojo.bo.FriendCircleBO;
+import org.itzixi.pojo.vo.FriendCircleVO;
 import org.itzixi.service.IFriendCircleService;
 import org.itzixi.utils.PagedGridResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/friendCircle")
@@ -39,7 +42,15 @@ public class FriendCircleController extends BaseInfoProperties {
         if (userId == null) {
             return GraceJSONResult.errorCustom(ResponseStatusEnum.USER_NOT_EXIST_ERROR);
         }
+
         PagedGridResult gridResult = friendCircleService.queryList(userId, page, pageSize);
+
+        List<FriendCircleVO> list = (List<FriendCircleVO>) gridResult.getRows();
+        for (FriendCircleVO f : list) {
+            String fiendCircleId = f.getFriendCircleId();
+            List<FriendCircleLiked> likedList = friendCircleService.queryLikedFriends(fiendCircleId);
+            f.setLikedFriends(likedList);
+        }
 
         return GraceJSONResult.ok(gridResult);
     }
