@@ -8,6 +8,7 @@ import org.itzixi.base.BaseInfoProperties;
 import org.itzixi.mapper.FriendCircleLikedMapper;
 import org.itzixi.mapper.FriendCircleMapper;
 import org.itzixi.mapper.FriendCircleMapperCustom;
+import org.itzixi.pojo.Comment;
 import org.itzixi.pojo.FriendCircle;
 import org.itzixi.pojo.FriendCircleLiked;
 import org.itzixi.pojo.Users;
@@ -109,6 +110,14 @@ public class FriendCircleServiceImpl extends BaseInfoProperties implements IFrie
     public Boolean doILike(String friendCircleId, String userId) {
         String isExist=redis.get(REDIS_DOES_USER_LIKE_FRIEND_CIRCLE + ":" + friendCircleId + ":" + userId);
         return StringUtils.isNotBlank(isExist);
+    }
+
+    @Override
+    public void delete(String friendCircleId,String userId) {
+        QueryWrapper<FriendCircle> deleteWrapper = new QueryWrapper<FriendCircle>()
+                .eq("id", friendCircleId)
+                .eq("user_id", userId);
+        friendCircleMapper.delete(deleteWrapper);
     }
 
     private FriendCircle selectFriendCircle(String friendCircleId) {

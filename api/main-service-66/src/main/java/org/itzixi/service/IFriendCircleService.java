@@ -22,4 +22,6 @@ public interface IFriendCircleService {
     public List<FriendCircleLiked> queryLikedFriends(String friendCircleId);
 
     public Boolean doILike(String friendCircleId,String userId);
+
+    public void delete(String friendCircleId,String userId);
 }
