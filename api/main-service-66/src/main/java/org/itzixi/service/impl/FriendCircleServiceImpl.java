@@ -3,6 +3,7 @@ package org.itzixi.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.itzixi.base.BaseInfoProperties;
 import org.itzixi.mapper.FriendCircleLikedMapper;
 import org.itzixi.mapper.FriendCircleMapper;
@@ -102,6 +103,12 @@ public class FriendCircleServiceImpl extends BaseInfoProperties implements IFrie
                 .eq("friend_circle_id", friendCircleId);
 
         return friendCircleLikedMapper.selectList(queryWrapper);
+    }
+
+    @Override
+    public Boolean doILike(String friendCircleId, String userId) {
+        String isExist=redis.get(REDIS_DOES_USER_LIKE_FRIEND_CIRCLE + ":" + friendCircleId + ":" + userId);
+        return StringUtils.isNotBlank(isExist);
     }
 
     private FriendCircle selectFriendCircle(String friendCircleId) {

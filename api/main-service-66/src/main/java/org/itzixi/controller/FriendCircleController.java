@@ -50,6 +50,9 @@ public class FriendCircleController extends BaseInfoProperties {
             String fiendCircleId = f.getFriendCircleId();
             List<FriendCircleLiked> likedList = friendCircleService.queryLikedFriends(fiendCircleId);
             f.setLikedFriends(likedList);
+
+            boolean res=friendCircleService.doILike(fiendCircleId,userId);
+            f.setDoILike(res);
         }
 
         return GraceJSONResult.ok(gridResult);

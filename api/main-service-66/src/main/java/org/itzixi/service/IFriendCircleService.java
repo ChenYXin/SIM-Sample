@@ -20,4 +20,6 @@ public interface IFriendCircleService {
     public void unLike(String friendCircleId, String userId);
 
     public List<FriendCircleLiked> queryLikedFriends(String friendCircleId);
+
+    public Boolean doILike(String friendCircleId,String userId);
 }
