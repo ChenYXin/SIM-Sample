@@ -150,7 +150,7 @@ public class FileController {
 
     @PostMapping("/uploadChatBg")
     public GraceJSONResult uploadChatBg(@RequestParam("file") MultipartFile file,
-                                                String userId) throws Exception {
+                                        String userId) throws Exception {
         if (StringUtils.isBlank(userId)) {
             return GraceJSONResult.errorCustom(ResponseStatusEnum.FILE_UPLOAD_FAILD);
         }
@@ -181,6 +181,32 @@ public class FileController {
         UsersVO usersVO = JsonUtils.jsonToPojo(json, UsersVO.class);
 
         return GraceJSONResult.ok(usersVO);
+    }
+
+    @PostMapping("/uploadFriendCircleImage")
+    public GraceJSONResult uploadFriendCircleImage(@RequestParam("file") MultipartFile file,
+                                        String userId) throws Exception {
+        if (StringUtils.isBlank(userId)) {
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.FILE_UPLOAD_FAILD);
+        }
+
+        //获得文件原始名称
+        String fileName = file.getOriginalFilename();
+        if (StringUtils.isBlank(fileName)) {
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.FILE_UPLOAD_FAILD);
+        }
+        // File.separator 表示当前操作系统的文件路径分隔符
+        // Windows 系统中，文件路径分隔符是\（反斜杠），而在 Unix/Linux 和 macOS 系统中，文件路径分隔符是/（正斜杠）
+        fileName = "friendCircleImage"
+                + File.separator + userId
+                + File.separator + dealWithoutFileName(fileName);
+        //上传
+        String imageUrl=MinIOUtils.uploadFile(minIOConfig.getBucketName(),
+                fileName,
+                file.getInputStream(),true);
+
+
+        return GraceJSONResult.ok(imageUrl);
     }
 
     private String dealWithFileName(String fileName) {
