@@ -11,4 +11,8 @@ public interface IFriendCircleService {
     public PagedGridResult queryList(String userId,
                                      Integer page,
                                      Integer pageSize);
+
+    public void like(String friendCircleId, String userId);
+
+    public void unLike(String friendCircleId, String userId);
 }

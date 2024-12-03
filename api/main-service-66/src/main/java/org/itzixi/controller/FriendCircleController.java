@@ -39,8 +39,33 @@ public class FriendCircleController extends BaseInfoProperties {
         if (userId == null) {
             return GraceJSONResult.errorCustom(ResponseStatusEnum.USER_NOT_EXIST_ERROR);
         }
-        PagedGridResult gridResult=friendCircleService.queryList(userId, page, pageSize);
+        PagedGridResult gridResult = friendCircleService.queryList(userId, page, pageSize);
 
         return GraceJSONResult.ok(gridResult);
+    }
+
+
+    @PostMapping("/unlike")
+    public GraceJSONResult unlike(@RequestParam String friendCircleId,
+                                  HttpServletRequest request) {
+        String userId = request.getHeader(HEADER_USER_ID);
+        if (userId == null) {
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.USER_NOT_EXIST_ERROR);
+        }
+        friendCircleService.unLike(friendCircleId, userId);
+        return GraceJSONResult.ok();
+    }
+
+    @PostMapping("/like")
+    public GraceJSONResult like(@RequestParam String friendCircleId,
+                                HttpServletRequest request) {
+        String userId = request.getHeader(HEADER_USER_ID);
+        if (userId == null) {
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.USER_NOT_EXIST_ERROR);
+        }
+
+        friendCircleService.like(friendCircleId, userId);
+
+        return GraceJSONResult.ok();
     }
 }
