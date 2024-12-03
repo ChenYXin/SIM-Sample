@@ -10,4 +10,6 @@ public interface ICommentService {
     public CommentVO createComment(CommentBO commentBO);
 
     public List<CommentVO> queryAll(String friendCircleId);
+
+    public void deleteComment(String commentId, String commentUserId, String friendCircleId);
 }

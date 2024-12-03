@@ -1,5 +1,6 @@
 package org.itzixi.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import jakarta.annotation.Resource;
 import org.itzixi.base.BaseInfoProperties;
 import org.itzixi.mapper.CommentMapper;
@@ -54,9 +55,19 @@ public class CommentServiceImpl extends BaseInfoProperties implements ICommentSe
 
     @Override
     public List<CommentVO> queryAll(String friendCircleId) {
-        Map<String,Object> map=new HashMap<>();
-        map.put("friendCircleId",friendCircleId);
+        Map<String, Object> map = new HashMap<>();
+        map.put("friendCircleId", friendCircleId);
 
         return commentMapperCustom.queryFriendCircleComments(map);
+    }
+
+    @Transactional
+    @Override
+    public void deleteComment(String commentId,String commentUserId,  String friendCircleId) {
+        QueryWrapper<Comment> deleteWrapper = new QueryWrapper<Comment>()
+                .eq("id", commentId)
+                .eq("comment_user_id", commentUserId)
+                .eq("friend_circle_id", friendCircleId);
+        commentMapper.delete(deleteWrapper);
     }
 }
