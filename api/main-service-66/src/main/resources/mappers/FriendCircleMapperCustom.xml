@@ -13,7 +13,11 @@
              left join users u
                        on fc.user_id = u.id
     where u.id = #{paramMap.userId}
-    order by fc.publish_time
+       or u.id in (select *
+                   from friendship fs
+                            left join users u on fs.friend_id = u.id
+                   where fs.my_id = #{paramMap.userId})
+    order by fc.publish_time desc
 </select>
 
 </mapper>
