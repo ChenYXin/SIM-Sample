@@ -47,11 +47,11 @@ public class FriendCircleController extends BaseInfoProperties {
 
         List<FriendCircleVO> list = (List<FriendCircleVO>) gridResult.getRows();
         for (FriendCircleVO f : list) {
-            String fiendCircleId = f.getFriendCircleId();
-            List<FriendCircleLiked> likedList = friendCircleService.queryLikedFriends(fiendCircleId);
+            String friendCircleId = f.getFriendCircleId();
+            List<FriendCircleLiked> likedList = friendCircleService.queryLikedFriends(friendCircleId);
             f.setLikedFriends(likedList);
 
-            boolean res=friendCircleService.doILike(fiendCircleId,userId);
+            boolean res=friendCircleService.doILike(friendCircleId,userId);
             f.setDoILike(res);
         }
 
@@ -81,5 +81,18 @@ public class FriendCircleController extends BaseInfoProperties {
         friendCircleService.like(friendCircleId, userId);
 
         return GraceJSONResult.ok();
+    }
+
+    @PostMapping("/likedFriends")
+    public GraceJSONResult likedFriends(@RequestParam String friendCircleId,
+                                HttpServletRequest request) {
+        String userId = request.getHeader(HEADER_USER_ID);
+        if (userId == null) {
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.USER_NOT_EXIST_ERROR);
+        }
+
+        List<FriendCircleLiked> likedList = friendCircleService.queryLikedFriends(friendCircleId);
+
+        return GraceJSONResult.ok(likedList);
     }
 }
