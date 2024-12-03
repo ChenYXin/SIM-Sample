@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.itzixi.mapper.FriendCircleMapperCustom">
+<select id="queryFriendCircleList" parameterType="map" resultType="org.itzixi.pojo.vo.FriendCircleVO">
+    select fc.id           as friendCircleId,
+           u.id            as userId,
+           u.nickname      as userNickname,
+           u.face          as userFace,
+           fc.words        as words,
+           fc.images       as images,
+           fc.publish_time as publishTime
+    from friend_circle fc
+             left join users u
+                       on fc.user_id = u.id
+    where u.id = #{paramMap.userId}
+    order by fc.publish_time
+</select>
+
+</mapper>
