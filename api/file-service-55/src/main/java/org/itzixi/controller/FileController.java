@@ -9,12 +9,15 @@ import org.itzixi.api.feign.UserInfoMicroServiceFeign;
 import org.itzixi.grace.result.GraceJSONResult;
 import org.itzixi.grace.result.ResponseStatusEnum;
 import org.itzixi.pojo.vo.UsersVO;
+import org.itzixi.pojo.vo.VideoMsgVO;
+import org.itzixi.utils.JcodecVideoUtil;
 import org.itzixi.utils.JsonUtils;
 import org.itzixi.utils.QrCodeUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -131,9 +134,9 @@ public class FileController {
                 + File.separator + userId
                 + File.separator + dealWithoutFileName(fileName);
         //上传
-        String imageUrl=MinIOUtils.uploadFile(minIOConfig.getBucketName(),
+        String imageUrl = MinIOUtils.uploadFile(minIOConfig.getBucketName(),
                 fileName,
-                file.getInputStream(),true);
+                file.getInputStream(), true);
 
         /**
          * 微服务远程调用更新用户头像到数据库
@@ -166,9 +169,9 @@ public class FileController {
                 + File.separator + userId
                 + File.separator + dealWithoutFileName(fileName);
         //上传
-        String imageUrl=MinIOUtils.uploadFile(minIOConfig.getBucketName(),
+        String imageUrl = MinIOUtils.uploadFile(minIOConfig.getBucketName(),
                 fileName,
-                file.getInputStream(),true);
+                file.getInputStream(), true);
 
         /**
          * 微服务远程调用更新用户头像到数据库
@@ -185,7 +188,7 @@ public class FileController {
 
     @PostMapping("/uploadFriendCircleImage")
     public GraceJSONResult uploadFriendCircleImage(@RequestParam("file") MultipartFile file,
-                                        String userId) throws Exception {
+                                                   String userId) throws Exception {
         if (StringUtils.isBlank(userId)) {
             return GraceJSONResult.errorCustom(ResponseStatusEnum.FILE_UPLOAD_FAILD);
         }
@@ -201,12 +204,87 @@ public class FileController {
                 + File.separator + userId
                 + File.separator + dealWithoutFileName(fileName);
         //上传
-        String imageUrl=MinIOUtils.uploadFile(minIOConfig.getBucketName(),
+        String imageUrl = MinIOUtils.uploadFile(minIOConfig.getBucketName(),
                 fileName,
-                file.getInputStream(),true);
+                file.getInputStream(), true);
 
 
         return GraceJSONResult.ok(imageUrl);
+    }
+
+    @PostMapping("/uploadChatPhoto")
+    public GraceJSONResult uploadChatPhoto(@RequestParam("file") MultipartFile file,
+                                           String userId) throws Exception {
+        if (StringUtils.isBlank(userId)) {
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.FILE_UPLOAD_FAILD);
+        }
+
+        //获得文件原始名称
+        String fileName = file.getOriginalFilename();
+        if (StringUtils.isBlank(fileName)) {
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.FILE_UPLOAD_FAILD);
+        }
+        // File.separator 表示当前操作系统的文件路径分隔符
+        // Windows 系统中，文件路径分隔符是\（反斜杠），而在 Unix/Linux 和 macOS 系统中，文件路径分隔符是/（正斜杠）
+        fileName = "chat"
+                + File.separator + userId
+                + File.separator + "photo"
+                + File.separator + dealWithoutFileName(fileName);
+        //上传
+        String imageUrl = MinIOUtils.uploadFile(minIOConfig.getBucketName(),
+                fileName,
+                file.getInputStream(), true);
+
+
+        return GraceJSONResult.ok(imageUrl);
+    }
+
+    @PostMapping("/uploadChatVideo")
+    public GraceJSONResult uploadChatVideo(@RequestParam("file") MultipartFile file,
+                                           String userId) throws Exception {
+        if (StringUtils.isBlank(userId)) {
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.FILE_UPLOAD_FAILD);
+        }
+
+        //获得文件原始名称
+        String fileName = file.getOriginalFilename();
+        if (StringUtils.isBlank(fileName)) {
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.FILE_UPLOAD_FAILD);
+        }
+        // File.separator 表示当前操作系统的文件路径分隔符
+        // Windows 系统中，文件路径分隔符是\（反斜杠），而在 Unix/Linux 和 macOS 系统中，文件路径分隔符是/（正斜杠）
+        fileName = "chat"
+                + File.separator + userId
+                + File.separator + "video"
+                + File.separator + dealWithoutFileName(fileName);
+        //上传
+        String videoUrl = MinIOUtils.uploadFile(minIOConfig.getBucketName(),
+                fileName,
+                file.getInputStream(), true);
+
+        //帧，封面获取 = 视频截帧，截取第一帧
+        String coverName = UUID.randomUUID().toString() + ".jpg";//视频封面的名称
+        String coverPath = JcodecVideoUtil.videoFramesPath
+                + File.separator + "videos"
+                + File.separator + coverName;
+
+        File coverFile = new File(coverPath);
+        if (!coverFile.getParentFile().exists()){
+            coverFile.getParentFile().mkdirs();
+        }
+
+        JcodecVideoUtil.fetchFrame(file,coverFile);
+
+        //上传封面到MinIO
+        String coverUrl = MinIOUtils.uploadFile(minIOConfig.getBucketName(),
+                coverName,
+                new FileInputStream(coverFile), true);
+
+        VideoMsgVO videoMsgVO = new VideoMsgVO();
+        videoMsgVO.setVideoPath(videoUrl);
+        videoMsgVO.setCover(coverUrl);
+
+        return GraceJSONResult.ok(videoMsgVO);
     }
 
     private String dealWithFileName(String fileName) {
