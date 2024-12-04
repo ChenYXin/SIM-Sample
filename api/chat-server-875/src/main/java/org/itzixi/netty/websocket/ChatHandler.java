@@ -60,7 +60,8 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
             UserChannelSession.putUserChannelIdRelation(currentChannelId, senderId);
         } else if (msgType == MsgTypeEnum.WORDS.type ||
                 msgType == MsgTypeEnum.IMAGE.type ||
-                msgType == MsgTypeEnum.VIDEO.type) {
+                msgType == MsgTypeEnum.VIDEO.type ||
+                msgType == MsgTypeEnum.VOICE.type) {
             //发送消息
             List<Channel> receiverChannels = UserChannelSession.getMultiChannels(receiverId);
             if (receiverChannels == null || receiverChannels.size() == 0 || receiverChannels.isEmpty()) {
@@ -72,6 +73,9 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
                 for (Channel c : receiverChannels) {
                     Channel findChannel = clients.find(c.id());
                     if (findChannel != null) {
+                        if (msgType == MsgTypeEnum.VOICE.type) {
+                            chatMsg.setIsRead(false);
+                        }
                         dataContent.setChatMsg(chatMsg);
                         String dataTimeFormat = LocalDateUtils.format(
                                 chatMsg.getChatTime(),
