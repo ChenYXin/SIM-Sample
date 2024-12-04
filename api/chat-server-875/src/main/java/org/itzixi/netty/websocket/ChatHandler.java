@@ -7,6 +7,12 @@ import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.util.concurrent.GlobalEventExecutor;
+import org.itzixi.enums.MsgTypeEnum;
+import org.itzixi.pojo.netty.ChatMsg;
+import org.itzixi.pojo.netty.DataContent;
+import org.itzixi.utils.JsonUtils;
+
+import java.time.LocalDateTime;
 
 /**
  * 创建自定义助手类
@@ -24,15 +30,40 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
         String content = msg.text();
         System.out.println("接收到的数据：" + content);
 
+        //1.获取客户端发来的消息并且解析
+        DataContent dataContent=JsonUtils.jsonToPojo(content, DataContent.class);
+        ChatMsg chatMsg=dataContent.getChatMsg();
+
+        String msgText=chatMsg.getMsg();
+        String receiverId=chatMsg.getReceiverId();
+        String senderId=chatMsg.getSenderId();
+
+        //时间校准，以服务器时间为准
+        chatMsg.setChatTime(LocalDateTime.now());
+
+        Integer msgType=chatMsg.getMsgType();
+
         //获取channel
         Channel currentChannel = ctx.channel();
         String currentChannelId = currentChannel.id().asLongText();
         String currentChannelIdShort = currentChannel.id().asShortText();
 
-        System.out.println("客户端currentChannelId：" + currentChannelId);
-        System.out.println("客户端currentChannelIdShort：" + currentChannelIdShort);
+        //System.out.println("客户端currentChannelId：" + currentChannelId);
+        //System.out.println("客户端currentChannelIdShort：" + currentChannelIdShort);
 
-        currentChannel.writeAndFlush(new TextWebSocketFrame(currentChannelId));
+        //2.判断消息类型，根据不同的类型来处理不同的业务
+        if(msgType == MsgTypeEnum.CONNECT_INIT.type){
+            //当WebSocket初次open的时候，初始化channel，把channel和用户userId关联起来
+            UserChannelSession.putMultiChannels(senderId,currentChannel);
+            UserChannelSession.putUserChannelIdRelation(currentChannelId,senderId);
+        }
+
+        //currentChannel.writeAndFlush(new TextWebSocketFrame(currentChannelId));
+
+        //群发
+        //clients.writeAndFlush(new TextWebSocketFrame(currentChannelId));
+
+        UserChannelSession.outputMulti();
     }
 
     /**
@@ -62,6 +93,10 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
         String currentChannelId = currentChannel.id().asLongText();
         System.out.println("客户端移除连接，channel对应的长id为：" + currentChannelId);
 
+        //移除多余的会话
+        String userId=UserChannelSession.getUserIdByChannelId(currentChannelId);
+        UserChannelSession.removeUnlessChannels(userId,currentChannelId);
+
         clients.remove(currentChannel);
     }
 
@@ -81,5 +116,9 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
         ctx.channel().close();
         //随后从ChannelGroup中移除对应的channel
         clients.remove(currentChannel);
+
+        //移除多余的会话
+        String userId=UserChannelSession.getUserIdByChannelId(currentChannelId);
+        UserChannelSession.removeUnlessChannels(userId,currentChannelId);
     }
 }
