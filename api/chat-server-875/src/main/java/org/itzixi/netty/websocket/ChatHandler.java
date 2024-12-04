@@ -11,8 +11,10 @@ import org.itzixi.enums.MsgTypeEnum;
 import org.itzixi.pojo.netty.ChatMsg;
 import org.itzixi.pojo.netty.DataContent;
 import org.itzixi.utils.JsonUtils;
+import org.itzixi.utils.LocalDateUtils;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 创建自定义助手类
@@ -31,17 +33,17 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
         System.out.println("接收到的数据：" + content);
 
         //1.获取客户端发来的消息并且解析
-        DataContent dataContent=JsonUtils.jsonToPojo(content, DataContent.class);
-        ChatMsg chatMsg=dataContent.getChatMsg();
+        DataContent dataContent = JsonUtils.jsonToPojo(content, DataContent.class);
+        ChatMsg chatMsg = dataContent.getChatMsg();
 
-        String msgText=chatMsg.getMsg();
-        String receiverId=chatMsg.getReceiverId();
-        String senderId=chatMsg.getSenderId();
+        String msgText = chatMsg.getMsg();
+        String receiverId = chatMsg.getReceiverId();
+        String senderId = chatMsg.getSenderId();
 
         //时间校准，以服务器时间为准
         chatMsg.setChatTime(LocalDateTime.now());
 
-        Integer msgType=chatMsg.getMsgType();
+        Integer msgType = chatMsg.getMsgType();
 
         //获取channel
         Channel currentChannel = ctx.channel();
@@ -52,10 +54,55 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
         //System.out.println("客户端currentChannelIdShort：" + currentChannelIdShort);
 
         //2.判断消息类型，根据不同的类型来处理不同的业务
-        if(msgType == MsgTypeEnum.CONNECT_INIT.type){
+        if (msgType == MsgTypeEnum.CONNECT_INIT.type) {
             //当WebSocket初次open的时候，初始化channel，把channel和用户userId关联起来
-            UserChannelSession.putMultiChannels(senderId,currentChannel);
-            UserChannelSession.putUserChannelIdRelation(currentChannelId,senderId);
+            UserChannelSession.putMultiChannels(senderId, currentChannel);
+            UserChannelSession.putUserChannelIdRelation(currentChannelId, senderId);
+        } else if (msgType == MsgTypeEnum.WORDS.type) {
+            //发送消息
+            List<Channel> receiverChannels = UserChannelSession.getMultiChannels(receiverId);
+            if (receiverChannels == null || receiverChannels.size() == 0 || receiverChannels.isEmpty()) {
+                //multiChannels 为空，表示用户离线/断线状态，消息不需要发送，后续可以存储到数据库
+                chatMsg.setIsReceiverOnLine(false);
+            } else {
+                chatMsg.setIsReceiverOnLine(true);
+                //当multiChannels不为空的时候，同账户多端设备接受消息
+                for (Channel c : receiverChannels) {
+                    Channel findChannel = clients.find(c.id());
+                    if (findChannel != null) {
+                        dataContent.setChatMsg(chatMsg);
+                        String dataTimeFormat = LocalDateUtils.format(
+                                chatMsg.getChatTime(),
+                                LocalDateUtils.DATETIME_PATTERN_2);
+                        dataContent.setChatTime(dataTimeFormat);
+                        //发送消息给在线的用户
+                        findChannel.writeAndFlush(
+                                new TextWebSocketFrame(
+                                        JsonUtils.objectToJson(dataContent)));
+
+                    }
+                }
+            }
+        }
+
+        List<Channel> myOtherChannels = UserChannelSession.getMyOtherChannels(senderId, currentChannelId);
+        for (Channel c : myOtherChannels) {
+            Channel findChannel = clients.find(c.id());
+            if (findChannel != null) {
+                dataContent.setChatMsg(chatMsg);
+                String dataTimeFormat = LocalDateUtils.format(
+                        chatMsg.getChatTime(),
+                        LocalDateUtils.DATETIME_PATTERN_2);
+                dataContent.setChatTime(dataTimeFormat);
+                //发送消息给在线的用户
+                findChannel.writeAndFlush(
+                        new TextWebSocketFrame(
+                                JsonUtils.objectToJson(dataContent)));
+                //同步消息给在线的其他设备端
+                findChannel.writeAndFlush(
+                        new TextWebSocketFrame(
+                                JsonUtils.objectToJson(dataContent)));
+            }
         }
 
         //currentChannel.writeAndFlush(new TextWebSocketFrame(currentChannelId));
@@ -84,6 +131,7 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
 
     /**
      * 关闭连接，移除channel
+     *
      * @param ctx
      * @throws Exception
      */
@@ -94,14 +142,15 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
         System.out.println("客户端移除连接，channel对应的长id为：" + currentChannelId);
 
         //移除多余的会话
-        String userId=UserChannelSession.getUserIdByChannelId(currentChannelId);
-        UserChannelSession.removeUnlessChannels(userId,currentChannelId);
+        String userId = UserChannelSession.getUserIdByChannelId(currentChannelId);
+        UserChannelSession.removeUnlessChannels(userId, currentChannelId);
 
         clients.remove(currentChannel);
     }
 
     /**
      * 发生异常并捕获，移除channel
+     *
      * @param ctx
      * @param cause
      * @throws Exception
@@ -118,7 +167,7 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
         clients.remove(currentChannel);
 
         //移除多余的会话
-        String userId=UserChannelSession.getUserIdByChannelId(currentChannelId);
-        UserChannelSession.removeUnlessChannels(userId,currentChannelId);
+        String userId = UserChannelSession.getUserIdByChannelId(currentChannelId);
+        UserChannelSession.removeUnlessChannels(userId, currentChannelId);
     }
 }
