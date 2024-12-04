@@ -99,4 +99,18 @@ public class FriendshipController extends BaseInfoProperties {
         friendshipService.delete(myId, friendId);
         return GraceJSONResult.ok();
     }
+
+    /**
+     * 判断2个朋友之间的关系是否拉黑
+     *
+     * @param friendId1st
+     * @param friendId2nd
+     * @return
+     */
+    @GetMapping("isBlack")
+    public GraceJSONResult isBlack(String friendId1st, String friendId2nd) {
+        //需要进行2次查询，A拉黑B，B拉黑A，AB相互拉黑
+        //只需要符合其中的一个条件，就表示双方发送消息不可送达
+        return GraceJSONResult.ok(friendshipService.isBlackEachOther(friendId1st, friendId2nd));
+    }
 }

@@ -35,7 +35,7 @@ public class FriendshipServiceImpl extends BaseInfoProperties implements IFriend
     }
 
     @Override
-    public List<ContactsVO> getFriendship(String myId,boolean needBlack) {
+    public List<ContactsVO> getFriendship(String myId, boolean needBlack) {
         Map<String, Object> map = new HashMap<>();
         map.put("myId", myId);
         map.put("needBlack", needBlack);
@@ -82,5 +82,22 @@ public class FriendshipServiceImpl extends BaseInfoProperties implements IFriend
                 .eq("friend_id", myId);
 
         friendshipMapper.delete(deleteWrapper2);
+    }
+
+    @Override
+    public boolean isBlackEachOther(String friendId1st, String friendId2nd) {
+        QueryWrapper<Friendship> queryWrapper1 = new QueryWrapper<Friendship>()
+                .eq("my_id", friendId1st)
+                .eq("friend_id", friendId2nd)
+                .eq("is_black", YesOrNo.YES.type);
+        Friendship friendship1st = friendshipMapper.selectOne(queryWrapper1);
+
+        QueryWrapper<Friendship> queryWrapper2 = new QueryWrapper<Friendship>()
+                .eq("my_id", friendId2nd)
+                .eq("friend_id", friendId1st)
+                .eq("is_black", YesOrNo.YES.type);
+        Friendship friendship2nd = friendshipMapper.selectOne(queryWrapper2);
+
+        return friendship1st != null || friendship2nd != null;
     }
 }

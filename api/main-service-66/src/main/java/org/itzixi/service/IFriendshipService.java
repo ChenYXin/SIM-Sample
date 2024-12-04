@@ -18,4 +18,5 @@ public interface IFriendshipService {
 
     public void delete(String myId, String friendId);
 
+    public boolean isBlackEachOther(String friendId1st,String friendId2nd);
 }
