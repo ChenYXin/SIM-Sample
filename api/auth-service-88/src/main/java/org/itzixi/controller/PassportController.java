@@ -73,7 +73,11 @@ public class PassportController extends BaseInfoProperties {
         redis.del(MOBILE_SMSCODE + ":" + mobile);
         //4.设置用户分布式会话，保存用户的token令牌，存储到redis中
         String uToken = TOKEN_USER_PREFIX + SYMBOL_DOT + UUID.randomUUID();
-        redis.set(REDIS_USER_TOKEN + ":" + user.getId(), uToken);//设置分布式会话
+        //本方式只能限制用户在一台设备进行登录
+//        redis.set(REDIS_USER_TOKEN + ":" + user.getId(), uToken);//设置分布式会话
+        //本方式允许用户在多个设备进行登录
+        redis.set(REDIS_USER_TOKEN + ":" + uToken, user.getId());//设置分布式会话
+
         //5.返回用户数据给前端
         UsersVO usersVO = new UsersVO();
         BeanUtils.copyProperties(user, usersVO);
@@ -103,7 +107,10 @@ public class PassportController extends BaseInfoProperties {
 
         //4.设置用户分布式会话，保存用户的token令牌，存储到redis中
         String uToken = TOKEN_USER_PREFIX + SYMBOL_DOT + UUID.randomUUID();
-        redis.set(REDIS_USER_TOKEN + ":" + user.getId(), uToken);//设置分布式会话
+        //本方式只能限制用户在一台设备进行登录
+//        redis.set(REDIS_USER_TOKEN + ":" + user.getId(), uToken);//设置分布式会话
+        //本方式允许用户在多个设备进行登录
+        redis.set(REDIS_USER_TOKEN + ":" + uToken, user.getId());//设置分布式会话
 
         //5.返回用户数据给前端
         UsersVO usersVO = new UsersVO();
@@ -136,7 +143,11 @@ public class PassportController extends BaseInfoProperties {
 
         //4.设置用户分布式会话，保存用户的token令牌，存储到redis中
         String uToken = TOKEN_USER_PREFIX + SYMBOL_DOT + UUID.randomUUID();
-        redis.set(REDIS_USER_TOKEN + ":" + user.getId(), uToken);//设置分布式会话
+        //本方式只能限制用户在一台设备进行登录
+//        redis.set(REDIS_USER_TOKEN + ":" + user.getId(), uToken);//设置分布式会话
+        //本方式允许用户在多个设备进行登录
+        redis.set(REDIS_USER_TOKEN + ":" + uToken, user.getId());//设置分布式会话
+
         //5.返回用户数据给前端
         UsersVO usersVO = new UsersVO();
         BeanUtils.copyProperties(user, usersVO);
