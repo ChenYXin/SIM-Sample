@@ -1,4 +1,4 @@
-package org.itzixi.netty;
+package org.itzixi.netty.http;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;

@@ -1,4 +1,4 @@
-package org.itzixi.netty;
+package org.itzixi.netty.http;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -7,7 +7,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
 import io.netty.util.CharsetUtil;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 
 /**
