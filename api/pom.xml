@@ -16,6 +16,7 @@
         <module>file-service-55</module>
         <module>main-service-66</module>
         <module>base-service</module>
+        <module>chat-server-875</module>
     </modules>
 
     <dependencies>
