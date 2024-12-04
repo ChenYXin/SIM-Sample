@@ -7,6 +7,7 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
+import io.netty.handler.timeout.IdleStateHandler;
 
 /**
  * 初始化器，channel注册后，会执行里面的初始化方法
@@ -34,6 +35,18 @@ public class WsServerInitializer extends ChannelInitializer {
         pipeline.addLast(new HttpObjectAggregator(1024 * 64));
 
         // ================== 以上是用于支持http协议相关的handler ==================
+
+        // ================== 增加心跳支持 start ==================
+
+        //针对客户端，如果在1分钟没有向服务端发送读写心跳（ALL），则主动断开连接
+        //如果读写空闲或者写空闲，不做任何处理
+        pipeline.addLast(new IdleStateHandler(8,
+                10,
+                30 * 60));
+        pipeline.addLast(new HeartBeatHandler());
+
+        // ================== 增加心跳支持 end ==================
+
         // ================== 以下是用于支持websocket ==================
 
         /**
