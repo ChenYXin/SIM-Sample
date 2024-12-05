@@ -26,3 +26,9 @@ spring:
         server-addr: 127.0.0.1:8848 #本地开发环境
         username: nacos
         password: nacos
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: imooc
+    password: 123456
+    virtual-host: wechat-dev
