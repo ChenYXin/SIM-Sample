@@ -36,9 +36,15 @@ public class ChatController extends BaseInfoProperties {
         if (page == null) page = 1;
         if (pageSize == null) pageSize = 20;
 
-        PagedGridResult gridResult=chatMessagesService.queryChatMsgList(senderId, receiverId, page, pageSize);
+        PagedGridResult gridResult = chatMessagesService.queryChatMsgList(senderId, receiverId, page, pageSize);
 
         return GraceJSONResult.ok(gridResult);
+    }
+
+    @PostMapping("/signRead/{msgId}")
+    public GraceJSONResult clearMyUnReadCounts(@PathVariable("msgId") String msgId) {
+        chatMessagesService.updateMsgSignRead(msgId);
+        return GraceJSONResult.ok();
     }
 
 }

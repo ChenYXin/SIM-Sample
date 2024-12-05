@@ -12,4 +12,6 @@ public interface IChatMessagesService {
                                             String receiverId,
                                             Integer page,
                                             Integer pageSize);
+
+    public void updateMsgSignRead(String msgId);
 }

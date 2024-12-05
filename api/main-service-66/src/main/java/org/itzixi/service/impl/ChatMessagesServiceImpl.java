@@ -66,4 +66,14 @@ public class ChatMessagesServiceImpl extends BaseInfoProperties implements IChat
 
         return setterPagedGridPlus(pageInfo);
     }
+
+    @Transactional
+    @Override
+    public void updateMsgSignRead(String msgId) {
+        ChatMessage message = new ChatMessage();
+        message.setId(msgId);
+        message.setIsRead(true);
+
+        chatMessageMapper.updateById(message);
+    }
 }
