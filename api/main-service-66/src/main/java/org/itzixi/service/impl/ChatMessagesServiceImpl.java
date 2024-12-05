@@ -19,12 +19,18 @@ public class ChatMessagesServiceImpl extends BaseInfoProperties implements IChat
     @Transactional
     @Override
     public void saveMsg(ChatMsg chatMsg) {
-        ChatMessage message=new ChatMessage();
+        ChatMessage message = new ChatMessage();
         BeanUtils.copyProperties(chatMsg, message);
 
         //手动设置聊天信息的主键ID
         message.setId(chatMsg.getMsgId());
 
         chatMessageMapper.insert(message);
+
+        String receiverId = chatMsg.getReceiverId();
+        String senderId = chatMsg.getSenderId();
+
+        //通过redis累加信息接受者的对应记录
+        redis.incrementHash(CHAT_MSG_LIST + ":" + receiverId, senderId, 1);
     }
 }
