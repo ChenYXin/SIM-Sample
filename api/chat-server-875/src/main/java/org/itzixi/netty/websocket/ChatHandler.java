@@ -1,5 +1,8 @@
 package org.itzixi.netty.websocket;
 
+import com.a3test.component.idworker.IdWorkerConfigBean;
+import com.a3test.component.idworker.Snowflake;
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -9,6 +12,7 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import org.itzixi.enums.MsgTypeEnum;
 import org.itzixi.grace.result.GraceJSONResult;
+import org.itzixi.netty.mq.MessagePublisher;
 import org.itzixi.pojo.netty.ChatMsg;
 import org.itzixi.pojo.netty.DataContent;
 import org.itzixi.utils.JsonUtils;
@@ -44,8 +48,10 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
 
         //判断是否黑名单 start
         //如果双方只要有一方是黑名单，则终止发送
-        GraceJSONResult result = OkHttpUtil.get("http://127.0.0.1:1000/friendship/isBlack?friendId1st=" + receiverId
+        GraceJSONResult result = OkHttpUtil.get("http://127.0.0.1:1000/friendship/isBlack?" +
+                "friendId1st=" + receiverId
                 + "&friendId2nd=" + senderId);
+        System.out.println("receiverId : "+receiverId+", senderId : "+senderId);
         boolean isBlack = (Boolean) result.getData();
         System.out.println("当前的黑名单关系为：" + isBlack);
         if (isBlack) {
@@ -75,6 +81,18 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
                 msgType == MsgTypeEnum.IMAGE.type ||
                 msgType == MsgTypeEnum.VIDEO.type ||
                 msgType == MsgTypeEnum.VOICE.type) {
+
+            //此处为mq异步解耦，保存信息到数据库，数据库无法获得信息的主键ID，
+            // 所以此处可以用snowflake直接生成唯一的主键ID
+            Snowflake snowflake = new Snowflake(new IdWorkerConfigBean());
+            String sid = snowflake.nextId();
+            System.out.println("sid = " + sid);
+
+            String iid = IdWorker.getIdStr();
+            System.out.println("iid = " + iid);
+
+            chatMsg.setMsgId(sid);
+
             //发送消息
             List<Channel> receiverChannels = UserChannelSession.getMultiChannels(receiverId);
             if (receiverChannels == null || receiverChannels.size() == 0 || receiverChannels.isEmpty()) {
@@ -123,6 +141,9 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
                                 JsonUtils.objectToJson(dataContent)));
             }
         }
+
+        //把聊天信息作为mq的消息发送给消费者进行消费处理（保存到数据库）
+        MessagePublisher.sendMsgToSave(chatMsg);
 
         //currentChannel.writeAndFlush(new TextWebSocketFrame(currentChannelId));
 
@@ -179,6 +200,7 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
         Channel currentChannel = ctx.channel();
         String currentChannelId = currentChannel.id().asLongText();
         System.out.println("发生异常捕获，channel对应的长id为：" + currentChannelId);
+        System.out.println("发生异常捕获,异常原因：" + cause.getMessage());
 
         //发生异常之后关闭连接（关闭channel）
         ctx.channel().close();
