@@ -1,5 +1,7 @@
 package org.itzixi.netty.utils;
 
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.zookeeper.data.Stat;
 import org.junit.jupiter.api.Test;
 import redis.clients.jedis.Jedis;
 
@@ -59,5 +61,18 @@ class JedisPoolUtilsTest {
         }
 
         return nettyPort;
+    }
+
+    @Test
+    public void testCurator() throws Exception {
+        CuratorFramework zkClient = CuratorConfig.getClient();
+
+        String path = "/hello";
+        Stat stat = zkClient.checkExists().forPath(path);
+
+        String nodeData = new String(zkClient.getData().forPath(path));
+
+        System.out.println(nodeData);
+        System.out.println(stat.toString());
     }
 }
