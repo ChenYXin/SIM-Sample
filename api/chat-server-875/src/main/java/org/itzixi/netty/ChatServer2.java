@@ -5,7 +5,6 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import org.itzixi.netty.http.HttpServerInitializer;
 import org.itzixi.netty.utils.JedisPoolUtils;
 import org.itzixi.netty.websocket.WsServerInitializer;
 import redis.clients.jedis.Jedis;
@@ -18,7 +17,7 @@ import java.util.stream.Collectors;
 /**
  * netty 服务的启动类（服务器）
  */
-public class ChatServer {
+public class ChatServer2 {
     public static final Integer nettyDefaultPort = 875;
     public static final String initOnlineCounts = "0";
 
