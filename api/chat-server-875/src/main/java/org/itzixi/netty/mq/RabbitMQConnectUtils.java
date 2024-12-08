@@ -16,17 +16,13 @@ public class RabbitMQConnectUtils {
 
     // 开发环境 dev
     private final String host = "127.0.0.1";
+    // 生产环境 prod
+//    private final String host = "39.29.1.32";
     private final int port = 5672;
     private final String username = "imooc";
     private final String password = "123456";
     private final String virtualHost = "wechat-dev";
 
-    // 生产环境 prod
-    //private final String host = "";
-    //private final int port = 5672;
-    //private final String username = "123";
-    //private final String password = "123";
-    //private final String virtualHost = "123";
 
     public ConnectionFactory factory;
 

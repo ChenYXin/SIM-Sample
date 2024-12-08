@@ -24,11 +24,18 @@ public class JedisPoolUtils {
         //最长等待时间，ms
         poolConfig.setMaxWait(Duration.ofMillis(1500));
 
+        //开发
         jedisPool = new JedisPool(poolConfig,
                 "127.0.0.1",
                 6379,
                 1000,
                 "123456");
+        //生产
+//        jedisPool = new JedisPool(poolConfig,
+//                "39.29.1.32",
+//                6379,
+//                1000,
+//                "123456");
     }
 
     public static Jedis getJedis() {

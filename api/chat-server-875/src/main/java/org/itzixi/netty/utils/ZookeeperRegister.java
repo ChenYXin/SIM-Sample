@@ -38,12 +38,17 @@ public class ZookeeperRegister {
                 .forPath(path + "/im-", nodeJson.getBytes());
     }
 
+    //开发
     public static String getLocalIp() throws Exception {
         InetAddress address = InetAddress.getLocalHost();
         String ip = address.getHostAddress();
         System.out.println("本机ip地址：" + ip);
         return ip;
     }
+    //生产
+//    public static String getLocalIp() throws Exception {
+//        return "39.29.1.32";
+//    }
 
     public static void incrementOnlineCounts(NettyServerNode serverNode) throws Exception {
         dealOnlineCounts(serverNode, 1);

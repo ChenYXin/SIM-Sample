@@ -1,15 +1,39 @@
+server:
+  port: 1000
+
 spring:
   data:
     redis:
-      host: 127.0.0.1
+      host: 127.0.0.1 #39.29.1.32 正式上线需要改成内网ip
       port: 6379
       database: 0
       password: 123456
   cloud:
     nacos:
       discovery:
-        server-addr: 127.0.0.1:8848 #todo 线上环境的ip需要修改
-        username: nacos
-        password: nacos
-
+        server-addr: 39.29.1.32:8848
+    gateway:
+      discovery:
+        locator:
+          enabled: true   # 动态路由，从注册中心根据微服务的名称获得目标节点的地址
+      routes: # 配置路由规则（数组/list）
+        - id: authRoute   # 每一项路由规则都有一个唯一的id编号，可以自定义
+          uri: lb://auth-service    # lb=负载均衡，会动态寻址
+          predicates:
+            - Path=/a/**,/passport/**
+        - id: fileRoute
+          uri: lb://file-service
+          predicates:
+            - Path=/f/**,/file/**,/static/**,/speech/**
+        - id: mainRoute
+          uri: lb://main-service
+          predicates:
+            - Path=/m/**,/userinfo/**,/friendRequest/**,/friendship/**,/friendCircle/**,/comment/**,/chat/**
+      globalcors: #解决跨域问题
+        cors-configurations:
+          '[/**]':
+            allowedOriginPatterns: "*"
+            allowedHeaders: "*"
+            allowedMethods: "*"
+            allowCredentials: true
 

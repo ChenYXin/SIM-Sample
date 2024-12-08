@@ -1,7 +1,22 @@
+server:
+  port: 55
 spring:
   cloud:
     nacos:
       discovery:
-        server-addr: 127.0.0.1:8848 #todo 线上环境的ip需要修改
+        server-addr: 127.0.0.1:8848 #本地开发环境 #39.29.1.32 正式上线需要改成内网ip
         username: nacos
         password: nacos
+  rabbitmq:
+    host: 127.0.0.1 #39.29.1.32 在docker中需要改成内网ip
+    port: 5672
+    username: imooc
+    password: 123456
+    virtual-host: wechat-dev
+minio:
+  endpoint: http://127.0.0.1:9000 #MinIO服务地址 #39.29.1.32 正式上线需要改成内网ip
+  fileHost: http://127.0.0.1:9000 #文件地址host ,最终需要改成域名地址 , 对外暴露 #域名/公网ip
+  bucketName: wechat              #存储桶bucket名称
+  accessKey: imooc                #账号
+  secretKey: imooc123456          #密码
+
