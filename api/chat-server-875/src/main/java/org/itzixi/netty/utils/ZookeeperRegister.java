@@ -59,7 +59,7 @@ public class ZookeeperRegister {
     public static void dealOnlineCounts(NettyServerNode serverNode, Integer counts) throws Exception {
         CuratorFramework zkClient = CuratorConfig.getClient();
 
-        //分布式锁，可以使用redis（长一致性）、zookeeper（强一致性）
+        //Curator分布式锁，可以使用redis（长一致性）、zookeeper（强一致性）
         InterProcessReadWriteLock readWriteLock = new InterProcessReadWriteLock(zkClient, "/rw-lock");
 
         try {
