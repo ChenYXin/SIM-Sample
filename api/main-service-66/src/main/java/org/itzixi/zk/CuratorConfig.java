@@ -12,6 +12,7 @@ import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.itzixi.pojo.netty.NettyServerNode;
 import org.itzixi.utils.JsonUtils;
 import org.itzixi.utils.RedisOperator;
+import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -63,6 +64,8 @@ public class CuratorConfig {
 
     @Autowired
     private RedisOperator redis;
+    @Resource
+    private RabbitAdmin rabbitAdmin;
 
     /**
      * 注册节点的事件监听
@@ -99,9 +102,15 @@ public class CuratorConfig {
                     System.out.println("old path = " + oldData.getPath());
                     System.out.println("old value = " + oldNode);
 
+                    //移除残留端口
                     String oldPort = oldNode.getPort() + "";
                     String portKey = "netty_port";
                     redis.hdel(portKey, oldPort);
+
+                    //移除残留队列
+                    String queueName="netty_queue_"+oldPort;
+                    rabbitAdmin.deleteQueue(queueName);
+
                     break;
                 default:
                     log.info("default...");
