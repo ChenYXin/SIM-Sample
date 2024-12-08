@@ -1,6 +1,12 @@
 package org.itzixi.netty.websocket;
 
 import io.netty.channel.Channel;
+import io.netty.channel.group.ChannelGroup;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import org.itzixi.enums.MsgTypeEnum;
+import org.itzixi.pojo.netty.DataContent;
+import org.itzixi.utils.JsonUtils;
+import org.itzixi.utils.LocalDateUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -80,5 +86,23 @@ public class UserChannelSession {
             System.out.println("---------------------------");
         }
         System.out.println("+++++++++++++++++++++++++++++++");
+    }
+
+    public static void sendToTarget(List<Channel> receiverChannels, DataContent dataContent){
+        ChannelGroup clients=ChatHandler.clients;
+        if (receiverChannels == null || receiverChannels.isEmpty()) {
+            return;
+        }
+        //当multiChannels不为空的时候，同账户多端设备接受消息
+        for (Channel c : receiverChannels) {
+            Channel findChannel = clients.find(c.id());
+            if (findChannel != null) {
+                //发送消息给在线的用户
+                findChannel.writeAndFlush(
+                        new TextWebSocketFrame(
+                                JsonUtils.objectToJson(dataContent)));
+
+            }
+        }
     }
 }
