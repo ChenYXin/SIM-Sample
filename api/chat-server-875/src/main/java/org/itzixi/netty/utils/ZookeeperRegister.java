@@ -1,6 +1,7 @@
 package org.itzixi.netty.utils;
 
 import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.recipes.locks.InterProcessReadWriteLock;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.data.Stat;
 import org.itzixi.pojo.netty.NettyServerNode;
@@ -57,20 +58,29 @@ public class ZookeeperRegister {
      */
     public static void dealOnlineCounts(NettyServerNode serverNode, Integer counts) throws Exception {
         CuratorFramework zkClient = CuratorConfig.getClient();
-        String path = "/server-list";
-        List<String> list = zkClient.getChildren().forPath(path);
 
-        for (String node : list) {
-            String nodePath = path + "/" + node;
-            String nodeValue = new String(zkClient.getData().forPath(nodePath));
-            NettyServerNode pendingNode = JsonUtils.jsonToPojo(nodeValue, NettyServerNode.class);
+        //分布式锁，可以使用redis（长一致性）、zookeeper（强一致性）
+        InterProcessReadWriteLock readWriteLock = new InterProcessReadWriteLock(zkClient, "/rw-lock");
 
-            if (pendingNode.getIp().equals(serverNode.getIp()) &&
-                    (pendingNode.getPort().intValue() == serverNode.getPort().intValue())) {
-                pendingNode.setOnlineCounts(pendingNode.getOnlineCounts() + counts);
-                String nodeJson = JsonUtils.objectToJson(pendingNode);
-                zkClient.setData().forPath(nodePath, nodeJson.getBytes());
+        try {
+            readWriteLock.writeLock().acquire();
+            String path = "/server-list";
+            List<String> list = zkClient.getChildren().forPath(path);
+
+            for (String node : list) {
+                String nodePath = path + "/" + node;
+                String nodeValue = new String(zkClient.getData().forPath(nodePath));
+                NettyServerNode pendingNode = JsonUtils.jsonToPojo(nodeValue, NettyServerNode.class);
+
+                if (pendingNode.getIp().equals(serverNode.getIp()) &&
+                        (pendingNode.getPort().intValue() == serverNode.getPort().intValue())) {
+                    pendingNode.setOnlineCounts(pendingNode.getOnlineCounts() + counts);
+                    String nodeJson = JsonUtils.objectToJson(pendingNode);
+                    zkClient.setData().forPath(nodePath, nodeJson.getBytes());
+                }
             }
+        } finally {
+            readWriteLock.writeLock().release();
         }
     }
 }
