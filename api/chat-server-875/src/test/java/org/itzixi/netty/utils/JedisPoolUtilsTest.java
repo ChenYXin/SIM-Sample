@@ -67,7 +67,7 @@ class JedisPoolUtilsTest {
     public void testCurator() throws Exception {
         CuratorFramework zkClient = CuratorConfig.getClient();
 
-        String path = "/hello";
+        String path = "/server-list";
         Stat stat = zkClient.checkExists().forPath(path);
 
         String nodeData = new String(zkClient.getData().forPath(path));

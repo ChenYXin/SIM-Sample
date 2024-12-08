@@ -34,12 +34,12 @@ public class MinioTest {
             System.out.println("Bucket " + bucketName + " already exists");
         }
         //上传本地的文件到minio到服务中
-        minioClient.uploadObject(UploadObjectArgs
-                .builder()
-                .bucket(bucketName)
-                .object("myImage.png")
-                .filename("/Users/chenyuexin/Downloads/Snipaste_2024-11-30_16-42-34.png")
-                .build());
+//        minioClient.uploadObject(UploadObjectArgs
+//                .builder()
+//                .bucket(bucketName)
+//                .object("myImage.png")
+//                .filename("/Users/chenyuexin/Downloads/Snipaste_2024-11-30_16-42-34.png")
+//                .build());
 
     }
 }

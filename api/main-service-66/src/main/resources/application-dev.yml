@@ -32,3 +32,12 @@ spring:
     username: imooc
     password: 123456
     virtual-host: wechat-dev
+zookeeper:
+  curator:
+    #127.0.0.1:3191,127.0.0.1:3192,127.0.0.1:3193 集群就是这样子
+    host: 127.0.0.1:2181
+    connectTimeoutMs: 30000
+    sessionTimeoutMs: 3000
+    sleepMsBetweenRetry: 2000
+    maxRetries: 3
+    namespace: itzixi-im
