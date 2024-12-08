@@ -24,6 +24,7 @@
 - Dockerfile 容器化编排
 
 ## 流程图
+<img width="400" src="https://github.com/ChenYXin/SIM-Sample/blob/main/screenshot/1.png?raw=true"/>
 
 ## 功能亮点
 - SpringCloud 结合 alibaba 体系构建分层的聚合微服务架构项目，与 Netty 集群进行异步通信并且进行离线消息存储
