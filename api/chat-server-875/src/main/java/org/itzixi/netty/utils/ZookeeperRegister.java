@@ -7,6 +7,7 @@ import org.itzixi.pojo.netty.NettyServerNode;
 import org.itzixi.utils.JsonUtils;
 
 import java.net.InetAddress;
+import java.util.List;
 
 public class ZookeeperRegister {
     public static void registerNettyServer(String nodeName,
@@ -41,5 +42,35 @@ public class ZookeeperRegister {
         String ip = address.getHostAddress();
         System.out.println("本机ip地址：" + ip);
         return ip;
+    }
+
+    public static void incrementOnlineCounts(NettyServerNode serverNode) throws Exception {
+        dealOnlineCounts(serverNode, 1);
+    }
+
+    public static void decrementOnlineCounts(NettyServerNode serverNode) throws Exception {
+        dealOnlineCounts(serverNode, -1);
+    }
+
+    /**
+     * 处理在线人数的增减
+     */
+    public static void dealOnlineCounts(NettyServerNode serverNode, Integer counts) throws Exception {
+        CuratorFramework zkClient = CuratorConfig.getClient();
+        String path = "/server-list";
+        List<String> list = zkClient.getChildren().forPath(path);
+
+        for (String node : list) {
+            String nodePath = path + "/" + node;
+            String nodeValue = new String(zkClient.getData().forPath(nodePath));
+            NettyServerNode pendingNode = JsonUtils.jsonToPojo(nodeValue, NettyServerNode.class);
+
+            if (pendingNode.getIp().equals(serverNode.getIp()) &&
+                    (pendingNode.getPort().intValue() == serverNode.getPort().intValue())) {
+                pendingNode.setOnlineCounts(pendingNode.getOnlineCounts() + counts);
+                String nodeJson = JsonUtils.objectToJson(pendingNode);
+                zkClient.setData().forPath(nodePath, nodeJson.getBytes());
+            }
+        }
     }
 }

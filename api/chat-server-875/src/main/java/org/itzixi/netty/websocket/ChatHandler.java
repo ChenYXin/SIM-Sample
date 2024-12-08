@@ -13,11 +13,15 @@ import io.netty.util.concurrent.GlobalEventExecutor;
 import org.itzixi.enums.MsgTypeEnum;
 import org.itzixi.grace.result.GraceJSONResult;
 import org.itzixi.netty.mq.MessagePublisher;
+import org.itzixi.netty.utils.JedisPoolUtils;
+import org.itzixi.netty.utils.ZookeeperRegister;
 import org.itzixi.pojo.netty.ChatMsg;
 import org.itzixi.pojo.netty.DataContent;
+import org.itzixi.pojo.netty.NettyServerNode;
 import org.itzixi.utils.JsonUtils;
 import org.itzixi.utils.LocalDateUtils;
 import org.itzixi.utils.OkHttpUtil;
+import redis.clients.jedis.Jedis;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -51,7 +55,7 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
         GraceJSONResult result = OkHttpUtil.get("http://127.0.0.1:1000/friendship/isBlack?" +
                 "friendId1st=" + receiverId
                 + "&friendId2nd=" + senderId);
-        System.out.println("receiverId : "+receiverId+", senderId : "+senderId);
+        System.out.println("receiverId : " + receiverId + ", senderId : " + senderId);
         boolean isBlack = (Boolean) result.getData();
         System.out.println("当前的黑名单关系为：" + isBlack);
         if (isBlack) {
@@ -77,6 +81,15 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
             //当WebSocket初次open的时候，初始化channel，把channel和用户userId关联起来
             UserChannelSession.putMultiChannels(senderId, currentChannel);
             UserChannelSession.putUserChannelIdRelation(currentChannelId, senderId);
+
+            //初次连接后，该节点下的在线人数累加
+            NettyServerNode minNode = dataContent.getServerNode();
+            ZookeeperRegister.incrementOnlineCounts(minNode);
+
+            //获得ip和端口，在redis中设置关系，以便在设备断线后减少在线人数
+            Jedis jedis = JedisPoolUtils.getJedis();
+            jedis.set(senderId, JsonUtils.objectToJson(minNode));
+
         } else if (msgType == MsgTypeEnum.WORDS.type ||
                 msgType == MsgTypeEnum.IMAGE.type ||
                 msgType == MsgTypeEnum.VIDEO.type ||
@@ -146,7 +159,6 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
         }
 
 
-
         //currentChannel.writeAndFlush(new TextWebSocketFrame(currentChannelId));
 
         //群发
@@ -188,6 +200,11 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
         UserChannelSession.removeUnlessChannels(userId, currentChannelId);
 
         clients.remove(currentChannel);
+
+        //zk中在线人数的累减
+        Jedis jedis = JedisPoolUtils.getJedis();
+        NettyServerNode minNode = JsonUtils.jsonToPojo(jedis.get(userId), NettyServerNode.class);
+        ZookeeperRegister.decrementOnlineCounts(minNode);
     }
 
     /**
@@ -212,5 +229,10 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
         //移除多余的会话
         String userId = UserChannelSession.getUserIdByChannelId(currentChannelId);
         UserChannelSession.removeUnlessChannels(userId, currentChannelId);
+
+        //zk中在线人数的累减
+        Jedis jedis = JedisPoolUtils.getJedis();
+        NettyServerNode minNode = JsonUtils.jsonToPojo(jedis.get(userId), NettyServerNode.class);
+        ZookeeperRegister.decrementOnlineCounts(minNode);
     }
 }
