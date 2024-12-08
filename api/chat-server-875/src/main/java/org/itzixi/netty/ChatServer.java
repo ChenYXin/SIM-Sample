@@ -6,6 +6,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.itzixi.netty.http.HttpServerInitializer;
+import org.itzixi.netty.mq.RabbitMQConnectUtils;
 import org.itzixi.netty.utils.JedisPoolUtils;
 import org.itzixi.netty.utils.ZookeeperRegister;
 import org.itzixi.netty.websocket.WsServerInitializer;
@@ -66,6 +67,11 @@ public class ChatServer {
         //注册当前netty服务到zookeeper中
         ZookeeperRegister.registerNettyServer("server-list",
                 ZookeeperRegister.getLocalIp(), nettyPort);
+
+        //启动消费者进行监听，队列可以根据动态生成的端口进行动态拼接
+        String queueName = "queue_" + ZookeeperRegister.getLocalIp() + "_" + nettyPort;
+        RabbitMQConnectUtils mqConnectUtils = new RabbitMQConnectUtils();
+        mqConnectUtils.listen("fanout_exchange", queueName);
 
         try {
             //构建Netty服务器
