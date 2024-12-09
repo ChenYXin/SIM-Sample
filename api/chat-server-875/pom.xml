@@ -24,7 +24,7 @@
             <artifactId>idworker-snowflake</artifactId>
             <version>1.0.0</version>
         </dependency>
-
+        <!-- RabbitMQ 依赖-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-amqp</artifactId>
